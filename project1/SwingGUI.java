@@ -1,6 +1,9 @@
 // Java Program to demonstrate 
 // JTabbedPane with Labels 
+import javax.print.attribute.standard.MediaSize.Other;
 import javax.swing.*;
+
+import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener; 
@@ -14,12 +17,14 @@ public class SwingGUI {
       public static JFrame window;
       public static ActionListener al;
       public static ItemListener il;
+      public static JTabbedPane tabPanel;
+      
     public static void main(String[] args) { 
         // Run the Swing application on the Event Dispatch Thread (EDT) 
         SwingUtilities.invokeLater(new Runnable() { 
             public void run() { 
                 // Create a new JFrame (window) 
-               window = new JFrame("JTabbedPane Example"); 
+               window = new JFrame("Project 1 - Food Application - Orest Brukhal, Orest Kisi"); 
                 // Close operation when the window is closed 
                window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close operation when the window is closed 
                // Set the initial size of the window 
@@ -53,9 +58,10 @@ public class SwingGUI {
      }
 
 
-     public static void addTextField(int x, int y, int w, int h, JPanel panel){
+     public static void addTextField(int x, int y, int w, int h, JPanel panel, boolean editable){
         JTextField name = new JTextField();
         name.setBounds(x, y, w, h);
+        name.setEditable(editable);
         panel.add(name);
      }
 
@@ -89,8 +95,19 @@ public class SwingGUI {
      }
 
 
-     public static void addComboBox(int x, int y, int w, int h, JPanel panel){
-        String arr[] = { "Meat", "Fruits", "Vegies"};
+     public static void addComboBox(int x, int y, int w, int h, JPanel panel, int id){
+
+        String arr[] = {"null"};
+        
+        if(id == 0){
+            String arr1[] = { "Meat", "Fruits", "Vegies", "Other"};
+            arr = arr1;
+        }
+        if(id == 1){
+            String arr1[] = { "Jan", "Feb", "Mar", "Apr"};
+            arr = arr1;
+        }
+        
 
         JComboBox cb = new JComboBox(arr);
         cb.setBounds(x, y, w, h);
@@ -100,39 +117,48 @@ public class SwingGUI {
      }
 
 
-     public static void addTab(){
-                JTabbedPane tabPanel = new JTabbedPane(); 
 
-                // Create the first tab (page1) 
-                JPanel page1 = new JPanel(); 
-                page1.setLayout(null);
-                createTab(page1, 0);
-  
-                // Create the second tab (page2) and add a JLabel to it 
-                JPanel page2 = new JPanel(); 
-                page2.setLayout(null);
-                createTab(page2, 1);
-  
-                // Create the third tab (page3) and add a JLabel to it 
-                JPanel page3 = new JPanel(); 
-                page3.add(new JLabel("This is Tab 3")); 
-  
-                // Add the three tabs to the JTabbedPane 
-                tabPanel.addTab("Home", page1); 
-                tabPanel.addTab("Recipes", page2); 
-                tabPanel.addTab("Log", page3); 
+
+     public static void addDateChooser(int x, int y, int w, int h, JPanel win){
+        addTextField(x, y, w/2, h, win, true);
+        addComboBox(x+20, y, w+20, h, win, 1);
+        addTextField(x+80, y, w, h, win, true);
+     }
+
+
+
+
+
+
+     public static void addTab(){
+                tabPanel = new JTabbedPane(); 
+
+                addPanelToTab("My Progress", 0);
+                addPanelToTab("Find Log", 1);
+                addPanelToTab("Add Log", 2);
+                addPanelToTab("Find Recipes", 3);
+                addPanelToTab("Add Recipes", 4);
+
   
                 // Add the JTabbedPane to the JFrame's content 
                 window.add(tabPanel); 
+     }
+
+     public static void addPanelToTab(String name, int id){
+        JPanel page1 = new JPanel(); 
+        page1.setLayout(null);
+        createTab(page1, id);
+        tabPanel.addTab(name, page1); 
      }
 
 
      public static void createTab(JPanel win, int id){
 
 
+        //my progress
         if(id == 0){
             addLabel("Product Name: ",80,20,100,20, win);
-            addTextField(200, 20, 200, 20, win);
+            addTextField(200, 20, 200, 20, win, true);
 
             addLabel("Product Type: ", 80,60,100,20, win);
             addRadioBttn("Local", "Foreign", 200, 40, 80, 50, win);
@@ -142,15 +168,47 @@ public class SwingGUI {
             
             addBttn("Submit", 200, 220, 100, 30, win);
         }
+        //find log
         else if(id == 1){
             addLabel("Recipe Title: ",80,20,100,20, win);
-            addTextField(200, 20, 200, 20, win);
+            addDateChooser(240, 20, 40, 20, win);
+
+            
+            addBttn("Search", 250, 40, 100, 30, win);
+            
+            addLabel("Description", 80,100,120,20, win);
+            addTextArea(200,100,200,100, win);
+        }
+
+        //add log
+        else if(id == 2){
+            addLabel("Recipe Title: ",80,20,100,20, win);
+            addDateChooser(240, 20, 40, 20, win);
+        }
+
+        //find recipes
+        else if(id == 3){
+            addLabel("Recipe Title: ",80,20,100,20, win);
+            addTextField(200, 20, 200, 20, win, true);
+
+            addBttn("Search", 250, 40, 100, 30, win);
+
+            addLabel("Description", 80,100,120,20, win);
+            addTextArea(200,100,200,100, win);
+        }
+
+        //add recipes
+        else if(id == 4){
+            addLabel("Recipe Title: ",80,20,100,20, win);
+            addTextField(200, 20, 200, 20, win, true);
 
             addLabel("Calories: ",80,40,100,20, win);
-            addTextField(200, 40, 200, 20, win);
+            addTextField(200, 40, 200, 20, win, true);
 
             addLabel("Food Type: ",80,60,100,20, win);
-            addComboBox(200, 60, 200, 20, win);
+            addComboBox(200, 60, 200, 20, win, 0);
+            addLabel("Other: ",80,80,100,20, win);
+            addTextField(200, 80, 200, 20, win, false);
 
             
 
@@ -158,6 +216,40 @@ public class SwingGUI {
         }
         
      }
+
+
+     public static JTextField getJTextFieldByJLabelText(String title) {
+        Component[] components;
+        JTextField txt = new JTextField();
+        JPanel pan = new JPanel();
+
+
+        for (int i = 0; i < tabPanel.getComponents().length; i++) {
+            if(tabPanel.getComponents()[i] instanceof JPanel){
+                pan = (JPanel)tabPanel.getComponents()[i];
+
+                components = pan.getComponents();            
+                for (int j = 0; j < components.length; j++) {
+
+                    if(components[j] instanceof JLabel){
+                        JLabel jl = (JLabel)components[j];
+                        if(jl.getText().equals(title)){
+                            txt = (JTextField)components[j+1];
+                        }
+                    }
+                
+                }
+            }
+        }
+
+        return txt;
+    }
+    
+
+
+    
+
+
 
 
 
@@ -183,6 +275,21 @@ public class SwingGUI {
                 if (cb.getSelectedItem() == "Vegies") {
  
                     System.out.println("Hello");
+                }
+
+
+
+
+
+                JTextField other = getJTextFieldByJLabelText("Other: ");
+
+                if (cb.getSelectedItem() == "Other"){
+                    
+                    other.setEditable(true);
+                    
+                }
+                else {
+                    other.setEditable(false);
                 }
             
          } };
