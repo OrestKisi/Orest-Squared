@@ -1,12 +1,13 @@
 // Java Program to demonstrate 
 // JTabbedPane with Labels 
-import javax.print.attribute.standard.MediaSize.Other;
 import javax.swing.*;
-
 import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener; 
+import java.awt.event.ItemListener;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
   
 // Driver Class 
 public class SwingGUI { 
@@ -18,19 +19,22 @@ public class SwingGUI {
       public static ActionListener al;
       public static ItemListener il;
       public static JTabbedPane tabPanel;
+      public static CSVWriter cw;
       
     public static void main(String[] args) { 
         // Run the Swing application on the Event Dispatch Thread (EDT) 
         SwingUtilities.invokeLater(new Runnable() { 
             public void run() { 
-                // Create a new JFrame (window) 
+
                window = new JFrame("Project 1 - Food Application - Orest Brukhal, Orest Kisi"); 
-                // Close operation when the window is closed 
-               window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close operation when the window is closed 
-               // Set the initial size of the window 
+               window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                window.setSize(500, 320); 
+               window.setResizable(false);
 
 
+
+
+                cw = new CSVWriter();
 
                 addActionListener();
                 addItemListener();
@@ -100,11 +104,11 @@ public class SwingGUI {
         String arr[] = {"null"};
         
         if(id == 0){
-            String arr1[] = { "Meat", "Fruits", "Vegies", "Other"};
-            arr = arr1;
+            arr = cw.getProductNames();
+            arr[arr.length-1] = "Other";
         }
         if(id == 1){
-            String arr1[] = { "Jan", "Feb", "Mar", "Apr"};
+            String arr1[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
             arr = arr1;
         }
         
@@ -157,43 +161,71 @@ public class SwingGUI {
 
         //my progress
         if(id == 0){
-            addLabel("Product Name: ",80,20,100,20, win);
-            addTextField(200, 20, 200, 20, win, true);
+            addLabel("From: ",80,20,100,20, win);
+            addDateChooser(240, 20, 40, 20, win);
 
-            addLabel("Product Type: ", 80,60,100,20, win);
-            addRadioBttn("Local", "Foreign", 200, 40, 80, 50, win);
+            addLabel("To: ",80,40,100,20, win);
+            addDateChooser(240, 40, 40, 20, win);
 
-            addLabel("Description", 80,100,120,20, win);
+            addBttn("Check", 250, 60, 100, 30, win);
+
+            addLabel("Description:   ", 80,100,120,20, win);
             addTextArea(200,100,200,100, win);
-            
-            addBttn("Submit", 200, 220, 100, 30, win);
         }
         //find log
         else if(id == 1){
-            addLabel("Recipe Title: ",80,20,100,20, win);
+            addLabel("Log Date: ",80,20,100,20, win);
             addDateChooser(240, 20, 40, 20, win);
 
             
             addBttn("Search", 250, 40, 100, 30, win);
             
-            addLabel("Description", 80,100,120,20, win);
+            addLabel("Description ", 80,100,120,20, win);
             addTextArea(200,100,200,100, win);
         }
 
         //add log
         else if(id == 2){
-            addLabel("Recipe Title: ",80,20,100,20, win);
+            addLabel("Date:  ",80,20,100,20, win);
             addDateChooser(240, 20, 40, 20, win);
+
+            addLabel("Current weight:  ", 80,40,120,20, win);
+            addTextField(200, 40, 200, 20, win, true);
+
+            addLabel("Product Consumed:  ",80,60,100,20, win);
+            addComboBox(200, 60, 200, 20, win, 0);
+
+            addLabel("Product Name:  ",80,100,100,20, win);
+            addTextField(200, 100, 200, 20, win, false);
+
+            addLabel("Product Info:  ",80,130,100,20, win);
+            addLabel("Calories:  ",200,120,100,20, win);
+            addTextField(260, 120, 20, 20, win, false);
+            addLabel("Fat(g):  ",290,120,100,20, win);
+            addTextField(380, 120, 20, 20, win, false);
+            addLabel("Protein(g):  ",200,140,100,20, win);
+            addTextField(260, 140, 20, 20, win, false);
+            addLabel("Carbohydrates:  ",290,140,100,20, win);
+            addTextField(380, 140, 20, 20, win, false);
+
+
+            addBttn("Add Product to Log", 200, 160, 200, 20, win);
+
+            addLabel("Current:  ", 80,200,120,20, win);
+            addTextArea(200,200,200,20, win);
+
+            addBttn("Add Log", 200, 220, 100, 30, win);
         }
 
         //find recipes
         else if(id == 3){
-            addLabel("Recipe Title: ",80,20,100,20, win);
+            addLabel("Recipe Title:  ",80,20,100,20, win);
             addTextField(200, 20, 200, 20, win, true);
+            
 
-            addBttn("Search", 250, 40, 100, 30, win);
+            addBttn("Search ", 250, 40, 100, 30, win);
 
-            addLabel("Description", 80,100,120,20, win);
+            addLabel("Description:  ", 80,100,120,20, win);
             addTextArea(200,100,200,100, win);
         }
 
@@ -202,14 +234,27 @@ public class SwingGUI {
             addLabel("Recipe Title: ",80,20,100,20, win);
             addTextField(200, 20, 200, 20, win, true);
 
-            addLabel("Calories: ",80,40,100,20, win);
-            addTextField(200, 40, 200, 20, win, true);
-
-            addLabel("Food Type: ",80,60,100,20, win);
+            addLabel("Product: ",80,60,100,20, win);
             addComboBox(200, 60, 200, 20, win, 0);
-            addLabel("Other: ",80,80,100,20, win);
-            addTextField(200, 80, 200, 20, win, false);
 
+            addLabel("Product Name: ",80,100,100,20, win);
+            addTextField(200, 100, 200, 20, win, false);
+
+            addLabel("Product Info: ",80,130,100,20, win);
+            addLabel("Calories: ",200,120,100,20, win);
+            addTextField(260, 120, 20, 20, win, false);
+            addLabel("Fat(g): ",290,120,100,20, win);
+            addTextField(380, 120, 20, 20, win, false);
+            addLabel("Protein(g): ",200,140,100,20, win);
+            addTextField(260, 140, 20, 20, win, false);
+            addLabel("Carbohydrates: ",290,140,100,20, win);
+            addTextField(380, 140, 20, 20, win, false);
+
+
+            addBttn("Add Product to Recipe", 200, 160, 200, 20, win);
+
+            addLabel("Current: ", 80,200,120,20, win);
+            addTextArea(200,200,200,20, win);
             
 
             addBttn("Add Recipe", 200, 220, 100, 30, win);
@@ -244,6 +289,74 @@ public class SwingGUI {
 
         return txt;
     }
+
+
+    public static JTextArea getJTextAreaByJLabelText(String title) {
+        Component[] components;
+        JTextArea txt = new JTextArea();
+        JPanel pan = new JPanel();
+
+
+        for (int i = 0; i < tabPanel.getComponents().length; i++) {
+            if(tabPanel.getComponents()[i] instanceof JPanel){
+                pan = (JPanel)tabPanel.getComponents()[i];
+
+                components = pan.getComponents();            
+                for (int j = 0; j < components.length; j++) {
+
+                    if(components[j] instanceof JLabel){
+                        JLabel jl = (JLabel)components[j];
+                        if(jl.getText().equals(title)){
+                            txt = (JTextArea)components[j+1];
+                        }
+                    }
+                
+                }
+            }
+        }
+
+        return txt;
+    }
+
+
+    public static String[] getDateByLabelText(String title) {
+        Component[] components;
+        JTextField txt = new JTextField();
+        JComboBox txt2 = new JComboBox<>();
+        JTextField txt3 = new JTextField();
+
+        String[] date = new String[3];
+
+        JPanel pan = new JPanel();
+
+
+        for (int i = 0; i < tabPanel.getComponents().length; i++) {
+            if(tabPanel.getComponents()[i] instanceof JPanel){
+                pan = (JPanel)tabPanel.getComponents()[i];
+
+                components = pan.getComponents();            
+                for (int j = 0; j < components.length; j++) {
+
+                    if(components[j] instanceof JLabel){
+                        JLabel jl = (JLabel)components[j];
+                        if(jl.getText().equals(title)){
+                            txt = (JTextField)components[j+1];
+                            txt2 = (JComboBox)components[j+2];
+                            txt3 = (JTextField)components[j+3];
+                        }
+                    }
+                
+                }
+            }
+        }
+
+        
+        date[0] = txt.getText();  date[2] = txt3.getText();
+
+        date[1] = String.valueOf(txt2.getSelectedIndex()+1);
+
+        return date;
+    }
     
 
 
@@ -256,10 +369,155 @@ public class SwingGUI {
      public static void addActionListener(){
         al = new ActionListener() {
 
+            ArrayList products = new ArrayList<>();
+
             public void actionPerformed(java.awt.event.ActionEvent e) {
                     JButton b = (JButton)e.getSource();
-                    if(b.getText() == "Submit"){
-                        System.out.println("Hello");
+                    if(b.getText() == "Add Log"){
+                        System.out.println("Log added: ");
+                    }
+
+
+                    
+
+                    //add recipe tab
+                    if(b.getText() == "Add Product to Recipe"){
+                        //adding product to textarea
+                        getJTextAreaByJLabelText("Current: ").append("1x - " + getJTextFieldByJLabelText("Product Name: ").getText() + "(" + getJTextFieldByJLabelText("Calories: ").getText() + "cal, " + getJTextFieldByJLabelText("Fat(g): ").getText() + "g of fat, " + getJTextFieldByJLabelText("Protein(g): ").getText() + "g of protein, " + getJTextFieldByJLabelText("Corbohydrates: ").getText() + " carbohydrates.");
+                        try {
+
+                            //adding product to food.csv
+                            cw.write(new Food(getJTextFieldByJLabelText("Product Name: ").getText(), Integer.parseInt(getJTextFieldByJLabelText("Calories: ").getText()), Integer.parseInt(getJTextFieldByJLabelText("Fat(g): ").getText()), Integer.parseInt(getJTextFieldByJLabelText("Carbohydrates: ").getText()), Integer.parseInt(getJTextFieldByJLabelText("Protein(g): ").getText())));
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+
+                        products.add(getJTextFieldByJLabelText("Product Name: ").getText());
+                        products.add(1);
+                    }
+                    //add recipe tab
+                    if(b.getText() == "Add Recipe"){    
+
+                        //messaging on textarea
+                        getJTextAreaByJLabelText("Current: ").setText("\"" +getJTextFieldByJLabelText("Recipe Title: ").getText() + "\" recipe added to food.csv");
+
+                        try {
+                            cw.write(new Recipe(getJTextFieldByJLabelText("Recipe Title: ").getText(), products));
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+
+                        products.clear();
+                    }
+                    //add log
+                    if(b.getText() == "Add Product to Log"){
+                        //adding product to textarea
+                        getJTextAreaByJLabelText("Current:  ").append("1x - " + getJTextFieldByJLabelText("Product Name:  ").getText() + "(" + getJTextFieldByJLabelText("Calories:  ").getText() + "cal, " + getJTextFieldByJLabelText("Fat(g):  ").getText() + "g of fat, " + getJTextFieldByJLabelText("Protein(g):  ").getText() + "g of protein, " + getJTextFieldByJLabelText("Corbohydrates:  ").getText() + " carbohydrates.");
+                        
+                        try {
+
+                            //adding product to food.csv
+                            cw.write(new Food(getJTextFieldByJLabelText("Product Name:  ").getText(), Integer.parseInt(getJTextFieldByJLabelText("Calories:  ").getText()), Integer.parseInt(getJTextFieldByJLabelText("Fat(g):  ").getText()), Integer.parseInt(getJTextFieldByJLabelText("Carbohydrates:  ").getText()), Integer.parseInt(getJTextFieldByJLabelText("Protein(g):  ").getText())));
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+
+                        products.add(getJTextFieldByJLabelText("Product Name:  ").getText());
+                        products.add(1);
+                    }
+
+                    //add log
+                    if(b.getText() == "Add Log"){    
+
+
+                        String[] str = getDateByLabelText("Date:  ");
+                        double d = Double.parseDouble(getJTextFieldByJLabelText("Current weight:  ").getText());
+                        System.out.print(d);
+                        
+                        Log log = new Log(Integer.parseInt(str[0]), Integer.parseInt(str[1]), Integer.parseInt(str[2]), d);
+                        Consumption con = new Consumption(Integer.parseInt(str[0]), Integer.parseInt(str[1]), Integer.parseInt(str[2]), products);
+
+                        try {
+                            cw.write(log);
+                            cw.write(con);
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+
+                        getJTextAreaByJLabelText("Current:  ").setText("\"" +getJTextFieldByJLabelText("Recipe Title: ").getText() + "\" recipe added to food.csv");
+
+
+                        products.clear();
+                    }
+
+                    //find recipe
+                    if(b.getText() == "Search "){
+                        try {
+
+                            String str = getJTextFieldByJLabelText("Recipe Title:  ").getText();
+                            
+                            Element el = cw.getByName(1, str);
+                        
+                            getJTextAreaByJLabelText("Description:  ").setText(str + "\nRecipe Contains: ");
+                            for (int i = 3; i < el.toArray().length; i+=2) {
+                                getJTextAreaByJLabelText("Description:  ").append("\n" + el.toArray()[i] + " - " + el.toArray()[i+1]);
+                            }
+
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+
+                    //find log
+                    if(b.getText() == "Search"){
+                        try {
+
+                            Element containsYear = cw.getByName(2, getDateByLabelText("Log Date: ")[0]);
+                            Element containsMonth = cw.getByName(2, getDateByLabelText("Log Date: ")[1]);
+                            Element containsDay = cw.getByName(2, getDateByLabelText("Log Date: ")[2]);
+
+
+                            //if(containsDay == containsMonth && containsMonth == containsYear){
+                            getJTextAreaByJLabelText("Description ").setText("Your weight on " + containsYear.toArray()[0] +" was " + containsYear.toArray()[2]);
+                                
+
+                            //}
+                                
+                            Element containsYear1 = cw.getByName(3, getDateByLabelText("Log Date: ")[0]);
+                            Element containsMonth1 = cw.getByName(3, getDateByLabelText("Log Date: ")[1]);
+                            Element containsDay1 = cw.getByName(3, getDateByLabelText("Log Date: ")[2]);
+
+                            getJTextAreaByJLabelText("Description ").append("\nYour have consumed: ");
+                            for (int i = 3; i < containsYear1.toArray().length; i+=2) {
+                                getJTextAreaByJLabelText("Description ").append("\n" + containsYear1.toArray()[i] + " - " + containsYear1.toArray()[i+1]);
+                            }
+
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+
+
+                    //My Progress tab
+                    if(b.getText() == "Check"){
+
+                        String[] date0 = getDateByLabelText("From: ");
+                        String[] date1 = getDateByLabelText("To: ");
+
+                        Element containsYear = null;
+                        Element containsYear2 = null;
+
+                        try {
+                            containsYear = cw.getByName(2, date0[0]);
+                            containsYear2 = cw.getByName(2, date1[0]);
+                        } catch (IOException e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
+
+                        JTextArea ta = getJTextAreaByJLabelText("Description:   ");
+                        ta.setText(containsYear.toArray()[0] + " - " + containsYear.toArray()[2] + "kg");
+                        ta.append("\n" + containsYear2.toArray()[0] + " - " + containsYear2.toArray()[2] + "kg");
                     }
                 }
             };
@@ -272,24 +530,45 @@ public class SwingGUI {
             public void itemStateChanged(ItemEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
 
-                if (cb.getSelectedItem() == "Vegies") {
- 
-                    System.out.println("Hello");
-                }
 
 
 
+                JTextField other = getJTextFieldByJLabelText("Product Name: ");
+                JTextField cal = getJTextFieldByJLabelText("Calories: ");
+                JTextField fat = getJTextFieldByJLabelText("Fat(g): ");
+                JTextField prot = getJTextFieldByJLabelText("Protein(g): ");
+                JTextField carbo = getJTextFieldByJLabelText("Carbohydrates: ");
 
-
-                JTextField other = getJTextFieldByJLabelText("Other: ");
+                JTextField other1 = getJTextFieldByJLabelText("Product Name:  ");
+                JTextField cal1 = getJTextFieldByJLabelText("Calories:  ");
+                JTextField fat1 = getJTextFieldByJLabelText("Fat(g):  ");
+                JTextField prot1 = getJTextFieldByJLabelText("Protein(g):  ");
+                JTextField carbo1 = getJTextFieldByJLabelText("Carbohydrates:  ");
 
                 if (cb.getSelectedItem() == "Other"){
                     
                     other.setEditable(true);
-                    
+                    cal.setEditable(true);
+                    fat.setEditable(true);
+                    prot.setEditable(true);
+                    carbo.setEditable(true);
+                    other1.setEditable(true);
+                    cal1.setEditable(true);
+                    fat1.setEditable(true);
+                    prot1.setEditable(true);
+                    carbo1.setEditable(true);
                 }
                 else {
                     other.setEditable(false);
+                    cal.setEditable(false);
+                    fat.setEditable(false);
+                    prot.setEditable(false);
+                    carbo.setEditable(false);
+                    other1.setEditable(false);
+                    cal1.setEditable(false);
+                    fat1.setEditable(false);
+                    prot1.setEditable(false);
+                    carbo1.setEditable(false);
                 }
             
          } };
