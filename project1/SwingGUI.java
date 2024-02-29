@@ -11,10 +11,8 @@ import java.util.ArrayList;
   
 // Driver Class 
 public class SwingGUI { 
-      // main function 
-
-
-
+      
+    // main function 
       public static JFrame window;
       public static ActionListener al;
       public static ItemListener il;
@@ -31,9 +29,6 @@ public class SwingGUI {
                window.setSize(500, 320); 
                window.setResizable(false);
 
-
-
-
                 cw = new CSVWriter();
 
                 addActionListener();
@@ -47,12 +42,6 @@ public class SwingGUI {
             } 
         }); 
     }
-    
-    
-
-
-
-
 
     public static void addLabel(String text, int x, int y, int w, int h, JPanel panel){
         //Create a label object, set the position, and add to the frame
@@ -120,19 +109,11 @@ public class SwingGUI {
         panel.add(cb);
      }
 
-
-
-
      public static void addDateChooser(int x, int y, int w, int h, JPanel win){
         addTextField(x, y, w/2, h, win, true);
         addComboBox(x+20, y, w+20, h, win, 1);
         addTextField(x+80, y, w, h, win, true);
      }
-
-
-
-
-
 
      public static void addTab(){
                 tabPanel = new JTabbedPane(); 
@@ -262,7 +243,6 @@ public class SwingGUI {
         
      }
 
-
      public static JTextField getJTextFieldByJLabelText(String title) {
         Component[] components;
         JTextField txt = new JTextField();
@@ -290,7 +270,6 @@ public class SwingGUI {
         return txt;
     }
 
-
     public static JTextArea getJTextAreaByJLabelText(String title) {
         Component[] components;
         JTextArea txt = new JTextArea();
@@ -317,7 +296,6 @@ public class SwingGUI {
 
         return txt;
     }
-
 
     public static String[] getDateByLabelText(String title) {
         Component[] components;
@@ -358,14 +336,6 @@ public class SwingGUI {
         return date;
     }
     
-
-
-    
-
-
-
-
-
      public static void addActionListener(){
         al = new ActionListener() {
 
@@ -376,9 +346,6 @@ public class SwingGUI {
                     if(b.getText() == "Add Log"){
                         System.out.println("Log added: ");
                     }
-
-
-                    
 
                     //add recipe tab
                     if(b.getText() == "Add Product to Recipe"){
@@ -521,7 +488,7 @@ public class SwingGUI {
                     }
                 }
             };
-     }
+        }
 
 
      public static void addItemListener(){
@@ -529,9 +496,6 @@ public class SwingGUI {
 
             public void itemStateChanged(ItemEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
-
-
-
 
                 JTextField other = getJTextFieldByJLabelText("Product Name: ");
                 JTextField cal = getJTextFieldByJLabelText("Calories: ");
