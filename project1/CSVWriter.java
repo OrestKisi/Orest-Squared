@@ -5,10 +5,6 @@ import java.util.List;
 
 public class CSVWriter {
 
-    
-
-
-
     public void write(Element el) throws IOException{
 
         String[] data = el.toArray();
@@ -38,9 +34,6 @@ public class CSVWriter {
 
     }
 
-
-
-
     public List<List<String>> reading(int id) throws FileNotFoundException, IOException{
 
         String name = "";
@@ -50,8 +43,6 @@ public class CSVWriter {
         else {
             name = "log.csv";
         }
-
-
 
         List<List<String>> records = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(name))) {
@@ -63,11 +54,8 @@ public class CSVWriter {
             }
 
         }
-
-
         return records;
     }
-
 
     public Element getByName(int id, String name) throws FileNotFoundException, IOException{
 
@@ -84,7 +72,6 @@ public class CSVWriter {
             list = reading(0);
         }
         
-
         for (int i = 0; i < list.size(); i++) {
             if(list.get(i).contains(name)){
                 
@@ -113,15 +100,8 @@ public class CSVWriter {
                 
             }
         }
-
-
         return food;
     }
-
-
-
-
-
 
     public String[] getProductNames(){
 
@@ -150,21 +130,13 @@ public class CSVWriter {
         for (int i = 0; i < al.size(); i++) {
             arr[i] = (String)al.get(i);
         }
-
-
         return arr;
     }
-
-
-
-
-
 }
 
 /**
  *  
  */
-
 class Element {
 
     public String[] toArray() {
@@ -172,8 +144,6 @@ class Element {
         return arr;
     }
 }
-
-
 
 class Food  extends Element{
 
@@ -190,7 +160,6 @@ class Food  extends Element{
     }
     
 }
-
 
 class Recipe extends Element{
 
@@ -224,7 +193,6 @@ class Recipe extends Element{
     
 }
 
-
 class Log extends Element{
 
     private String date;
@@ -249,7 +217,6 @@ class Consumption extends Element{
     public Consumption(int year, int month, int day, ArrayList names_amounts){
         date = String.valueOf(year) + "," + String.valueOf(month) + "," + String.valueOf(day);
         na = names_amounts;
-
     }
 
 
@@ -269,8 +236,6 @@ class Consumption extends Element{
         for (int i = 0; i < arli.size(); i++) {
             arr[i] = String.valueOf(arli.get(i));
         }
-
-
         return arr;
     }
 }
