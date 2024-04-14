@@ -1,10 +1,6 @@
 b,orest,4,1,10,8
 r,hotdog,hot,2.0,bun,2.0
 b,orest,4,1,10,8
-r,hotdog,hot,2.0,bun,2.0
-2021,8,21,f,hot,2.0,bun,2.0
-b,orest,4,1,10,8
-r,hotdog,hot,2.0,bun,2.0
 b,Banan,133,76767,354545,676767
 b,adadad,13,13,13,13
 b,oresto,13,767,35,878
@@ -12,12 +8,12 @@ b,bongiaornamiga,13,676,64,887
 b,banan,15,5555,79,22
 r,myRecipe
 b,adjdaod,1313,99,5565,44
-b,adjdaod,1313,99,5565,44
-b,adjdaod,1313,99,5565,44
 r,myRecipe2
 b,banan,343,66,757,99
 b,orest,22,66,7,99
 b,masha,22,99,66,99
 r,myRecipe,banan,1,orest,1,masha,1
 b,MyProduct,124,132,66,100
-r,MyRecipe,MyProduct,1
+r,MyRecipe,MyProduct,1b,ninjagaiden,100,66,33,88
+b,ninjagaiden,100,66,33,88
+b,ninjagaiden,100,66,33,88

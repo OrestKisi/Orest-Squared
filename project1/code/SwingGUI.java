@@ -7,91 +7,96 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+
+import java.io.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
   
 // Driver Class 
-public class SwingGUI { 
-      
-    // main function 
-      public static JFrame window;
-      public static ActionListener al;
-      public static ItemListener il;
-      public static JTabbedPane tabPanel;
-      public static CSVWriter cw;
-      
-    public static void main(String[] args) { 
-        // Run the Swing application on the Event Dispatch Thread (EDT) 
-        SwingUtilities.invokeLater(new Runnable() { 
-            public void run() { 
+public class SwingGUI {
+    public static JFrame window;
+    public static ActionListener al;
+    public static ItemListener il;
+    public static JTabbedPane tabPanel;
+    public static CSVWriter cw;
 
-               window = new JFrame("Project 1 - Food Application - Orest Brukhal, Orest Kisi"); 
-               window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-               window.setSize(500, 320); 
-               window.setResizable(false);
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                window = new JFrame("Project 1 - Food Application - Orest Brukhal, Orest Kisi");
+                window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                window.setSize(500, 640);
+                window.setResizable(false);
 
                 cw = new CSVWriter();
 
                 addActionListener();
                 addItemListener();
-  
-                // Create a JTabbedPane, which will hold the tabs 
+
                 addTab();
-  
-                // Make the JFrame visible 
-                window.setVisible(true); 
-            } 
-        }); 
+
+                window.setVisible(true);
+            }
+        });
     }
 
     public static void addLabel(String text, int x, int y, int w, int h, JPanel panel){
-        //Create a label object, set the position, and add to the frame
         JLabel lbl1 = new JLabel(text, JLabel.LEFT);
         lbl1.setBounds(x, y, w, h);
         panel.add(lbl1);
-     }
+    }
 
 
-     public static void addTextField(int x, int y, int w, int h, JPanel panel, boolean editable){
+    public static void addTextField(int x, int y, int w, int h, JPanel panel, boolean editable){
         JTextField name = new JTextField();
         name.setBounds(x, y, w, h);
         name.setEditable(editable);
         panel.add(name);
-     }
+    }
 
 
-     public static void addRadioBttn(String text1, String text2, int x, int y, int w, int h, JPanel panel){
+    public static void addRadioBttn(String text1, String text2, int x, int y, int w, int h, JPanel panel){
         JRadioButton rdbtn1 = new JRadioButton(text1);
-         rdbtn1.setActionCommand(text1);
-         JRadioButton rdbtn2 = new JRadioButton(text2);
-         rdbtn2.setActionCommand(text2);
-         rdbtn1.setBounds(x,y,w,h);
-         rdbtn2.setBounds(x+100,40,x+10,50);
-         ButtonGroup bgrp = new ButtonGroup();
-         bgrp.add(rdbtn1);
-         bgrp.add(rdbtn2);
-         panel.add(rdbtn1);
-         panel.add(rdbtn2);
-     }
+        rdbtn1.setActionCommand(text1);
+        JRadioButton rdbtn2 = new JRadioButton(text2);
+        rdbtn2.setActionCommand(text2);
+        rdbtn1.setBounds(x, y, w, h);
+        rdbtn2.setBounds(x + 100, y, w, h); // Adjusted spacing
+        ButtonGroup bgrp = new ButtonGroup();
+        bgrp.add(rdbtn1);
+        bgrp.add(rdbtn2);
+        panel.add(rdbtn1);
+        panel.add(rdbtn2);
+    }
 
 
-     public static void addTextArea(int x, int y, int w, int h, JPanel panel){
+    public static void addTextArea(int x, int y, int w, int h, JPanel panel){
         JTextArea txtArea = new JTextArea();
-         txtArea.setBounds(x, y, w, h);
-         panel.add(txtArea);
-     }
+        txtArea.setBounds(x, y, w, h);
+        panel.add(txtArea);
+    }
 
-     public static void addBttn(String text, int x, int y, int w, int h, JPanel panel){
+    public static void addBttn(String text, int x, int y, int w, int h, JPanel panel){
         JButton btn = new JButton(text);
-         btn.setBounds(x, y, w, h);
-         btn.addActionListener(al);
-         panel.add(btn);
-     }
+        btn.setBounds(x, y, w, h);
+        btn.addActionListener(al);
+        panel.add(btn);
+    }
 
 
-     public static void addComboBox(int x, int y, int w, int h, JPanel panel, int id){
-
+    public static void addComboBox(int x, int y, int w, int h, JPanel panel, int id){
         String arr[] = {"null"};
-        
+
         if(id == 0){
             arr = cw.getProductNames();
             arr[arr.length-1] = "Other";
@@ -100,20 +105,27 @@ public class SwingGUI {
             String arr1[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
             arr = arr1;
         }
-        
 
         JComboBox cb = new JComboBox(arr);
         cb.setBounds(x, y, w, h);
         cb.setSelectedIndex(0);
         cb.addItemListener(il);
         panel.add(cb);
-     }
+    }
 
-     public static void addDateChooser(int x, int y, int w, int h, JPanel win){
-        addTextField(x, y, w/2, h, win, true);
-        addComboBox(x+20, y, w+20, h, win, 1);
-        addTextField(x+80, y, w, h, win, true);
-     }
+    public static void addDateChooser(int x, int y, int w, int h, JPanel win) {
+        UtilDateModel model = new UtilDateModel();
+        Properties properties = new Properties();
+        properties.put("text.today", "Today");
+        properties.put("text.month", "Month");
+        properties.put("text.year", "Year");
+
+        JDatePanelImpl datePanel = new JDatePanelImpl(model, properties);
+        JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+
+        datePicker.setBounds(x, y, w, h);
+        win.add(datePicker);
+    }
 
      public static void addTab(){
                 tabPanel = new JTabbedPane(); 
@@ -143,10 +155,10 @@ public class SwingGUI {
         //my progress
         if(id == 0){
             addLabel("From: ",80,20,100,20, win);
-            addDateChooser(240, 20, 40, 20, win);
+            addDateChooser(240, 20, 100, 20, win);
 
             addLabel("To: ",80,40,100,20, win);
-            addDateChooser(240, 40, 40, 20, win);
+            addDateChooser(240, 40, 100, 20, win);
 
             addBttn("Check", 250, 60, 100, 30, win);
 
@@ -299,42 +311,58 @@ public class SwingGUI {
 
     public static String[] getDateByLabelText(String title) {
         Component[] components;
-        JTextField txt = new JTextField();
-        JComboBox txt2 = new JComboBox<>();
+        JDatePickerImpl datePicker = new JDatePickerImpl(new JDatePanelImpl(new UtilDateModel(), new Properties()), null);
         JTextField txt3 = new JTextField();
-
+    
         String[] date = new String[3];
-
+    
         JPanel pan = new JPanel();
-
-
+    
+    
         for (int i = 0; i < tabPanel.getComponents().length; i++) {
-            if(tabPanel.getComponents()[i] instanceof JPanel){
-                pan = (JPanel)tabPanel.getComponents()[i];
-
-                components = pan.getComponents();            
+            if (tabPanel.getComponents()[i] instanceof JPanel) {
+                pan = (JPanel) tabPanel.getComponents()[i];
+    
+                components = pan.getComponents();
                 for (int j = 0; j < components.length; j++) {
-
-                    if(components[j] instanceof JLabel){
-                        JLabel jl = (JLabel)components[j];
-                        if(jl.getText().equals(title)){
-                            txt = (JTextField)components[j+1];
-                            txt2 = (JComboBox)components[j+2];
-                            txt3 = (JTextField)components[j+3];
+    
+                    if (components[j] instanceof JLabel) {
+                        JLabel jl = (JLabel) components[j];
+                        if (jl.getText().equals(title)) {
+                            if (components[j + 1] instanceof JDatePickerImpl) {
+                                datePicker = (JDatePickerImpl) components[j + 1];
+                            } else if (components[j + 1] instanceof JTextField) {
+                                txt3 = (JTextField) components[j + 1];
+                            }
                         }
                     }
-                
+    
                 }
             }
         }
-
-        
-        date[0] = txt.getText();  date[2] = txt3.getText();
-
-        date[1] = String.valueOf(txt2.getSelectedIndex()+1);
-
+    
+        if (datePicker.getModel().getValue() != null) {
+            Date selectedDate = (Date) datePicker.getModel().getValue();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(selectedDate);
+            date[0] = String.valueOf(calendar.get(Calendar.YEAR));
+            date[1] = String.valueOf(calendar.get(Calendar.MONTH) + 1); // Month is zero-based
+            date[2] = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
+        } else {
+            String[] dateParts = datePicker.getJFormattedTextField().getText().split(",");
+            if (dateParts.length >= 3) {
+                date[0] = dateParts[0];
+                date[1] = dateParts[1];
+                date[2] = dateParts[2];
+            } else {
+                // Handle the case where the split result does not contain enough elements
+                // You might want to set default values or handle this case differently based on your requirements
+            }
+        }
+    
         return date;
     }
+    
     
      public static void addActionListener(){
         al = new ActionListener() {
@@ -538,3 +566,262 @@ public class SwingGUI {
          } };
     }
 } 
+
+
+
+// Add this class inside your SwingGUI class or import it separately
+class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy,MM,dd");
+
+    @Override
+    public Object stringToValue(String text) throws ParseException {
+        return dateFormatter.parse(text);
+    }
+
+    @Override
+    public String valueToString(Object value) throws ParseException {
+        if (value != null && value instanceof Date) {
+            return dateFormatter.format(value);
+        }
+        return "";
+    }
+}
+
+
+
+class CSVWriter {
+
+    public void write(Element el) throws IOException{
+
+        String[] data = el.toArray();
+        File csvFile = null;
+
+        if(el instanceof Log || el instanceof Consumption){
+            csvFile = new File("log.csv");
+        }
+        else {
+            csvFile = new File("food.csv");
+        }
+        
+        FileWriter fileWriter = new FileWriter(csvFile, true);
+
+
+            StringBuilder line = new StringBuilder();
+            for (int i = 0; i < data.length; i++) {
+                line.append(data[i].replaceAll("\"","\"\""));
+                if (i != data.length - 1) {
+                    line.append(',');
+                }
+            }
+            line.append("\n");
+            fileWriter.write(line.toString());
+        
+        fileWriter.close();
+
+    }
+
+    public List<List<String>> reading(int id) throws FileNotFoundException, IOException{
+
+        String name = "";
+        if(id == 1){
+            name = "food.csv";
+        }
+        else {
+            name = "log.csv";
+        }
+
+        List<List<String>> records = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(name))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                records.add(Arrays.asList(values));
+                
+            }
+
+        }
+        return records;
+    }
+
+    public Element getByName(int id, String name) throws FileNotFoundException, IOException{
+
+        Element food = null;
+        List<List<String>> list = null;
+
+        //reading 1 = food.csv
+        //else = log.csv
+
+        if(id == 1 || id == 0){
+            list = reading(1);
+        }
+        else {
+            list = reading(0);
+        }
+        
+        for (int i = 0; i < list.size(); i++) {
+            if(list.get(i).contains(name)){
+                
+                List<String> inList = list.get(i);
+                
+                if(id == 0 && inList.contains("b")){
+                    food = new Food(name, Integer.parseInt(inList.get(2)), Integer.parseInt(inList.get(3)), Integer.parseInt(inList.get(4)), Integer.parseInt(inList.get(5)));
+                }
+                else if(id == 1 && inList.contains("r")){
+                    ArrayList al = new ArrayList<>();
+                    for (int j = 1; j < inList.size(); j++) {
+                        al.add(inList.get(j));
+                    }
+                    food = new Recipe(name, al);
+                }
+                else if(id == 2 && inList.contains("w") && inList.get(0).contains(name)){
+                    food = new Log(Integer.parseInt(inList.get(0)), Integer.parseInt(inList.get(1)), Integer.parseInt(inList.get(2)), Double.parseDouble(inList.get(4)));
+                }
+                else if(id == 3 && inList.contains("f")){
+                    ArrayList al = new ArrayList<>();
+                    for (int j = 3; j < inList.size(); j++) {
+                        al.add(inList.get(j));
+                    }
+                    food = new Consumption(Integer.parseInt(inList.get(0)), Integer.parseInt(inList.get(1)), Integer.parseInt(inList.get(2)), al);
+                }
+                
+            }
+        }
+        return food;
+    }
+
+    public String[] getProductNames(){
+
+        List<List<String>> list = null;
+
+        try {
+            list = reading(1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String[] arr = null;
+        ArrayList al = new ArrayList<>();
+
+        for (int i = 0; i < list.size(); i++) {
+            List<String> inList = list.get(i);
+
+            for (int j = 0; j < inList.size(); j++) {
+                if(inList.contains("b")){
+                    al.add(inList.get(1));
+                }
+            }
+        }
+
+        arr = new String[al.size()];
+        for (int i = 0; i < al.size(); i++) {
+            arr[i] = (String)al.get(i);
+        }
+        return arr;
+    }
+}
+
+/**
+ *  
+ */
+class Element {
+
+    public String[] toArray() {
+        String[] arr = null;
+        return arr;
+    }
+}
+
+class Food  extends Element{
+
+    private String name;
+    private int ccal, fat, carbohydrates, protein;
+
+    public Food(String _name, int _ccal, int _fat, int _carbohydrates, int _protein){
+        name = _name; ccal = _ccal; fat = _fat; carbohydrates = _carbohydrates; protein = _protein;
+    }
+
+    public String[] toArray() {
+        String[] arr = {"b", name, String.valueOf(ccal), String.valueOf(fat), String.valueOf(protein), String.valueOf(carbohydrates)};
+        return arr;
+    }
+    
+}
+
+class Recipe extends Element{
+
+    private String name;
+    private ArrayList na;
+
+    public Recipe(String _name, ArrayList names_amounts){
+        name = _name;  na = names_amounts;
+    }
+
+    public String[] toArray() {
+
+        String[] arr = null;
+        ArrayList arli = new ArrayList<>();
+
+
+        arli.add("r"); arli.add(name);
+
+        for (int i = 0; i < na.size(); i++) {
+            arli.add(na.get(i));
+        }
+
+        arr = new String[arli.size()];
+
+        for (int i = 0; i < arli.size(); i++) {
+            arr[i] = String.valueOf(arli.get(i));
+        }
+
+        return arr;
+    }
+    
+}
+
+class Log extends Element{
+
+    private String date;
+    private double weight;
+
+    public Log(int year, int month, int day, double _weight){
+        date = String.valueOf(year) + "," + String.valueOf(month) + "," + String.valueOf(day);
+        weight = _weight;
+    }
+
+    public String[] toArray() {
+        String[] arr = {date, "w", String.valueOf(weight)};
+        return arr;
+    }
+}
+
+class Consumption extends Element{
+
+    private String date;
+    private ArrayList na;
+
+    public Consumption(int year, int month, int day, ArrayList names_amounts){
+        date = String.valueOf(year) + "," + String.valueOf(month) + "," + String.valueOf(day);
+        na = names_amounts;
+    }
+
+
+    public String[] toArray() {
+        
+        String[] arr = null;
+        ArrayList arli = new ArrayList<>();
+
+        arli.add(date); arli.add("f");
+
+        for (int i = 0; i < na.size(); i++) {
+            arli.add(na.get(i));
+        }
+
+        arr = new String[arli.size()];
+
+        for (int i = 0; i < arli.size(); i++) {
+            arr[i] = String.valueOf(arli.get(i));
+        }
+        return arr;
+    }
+}
