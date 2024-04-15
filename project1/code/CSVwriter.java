@@ -9,42 +9,46 @@ import java.util.List;
 
 class CSVWriter {
 
-    public void write(Element el) throws IOException{
-
+    public void write(Element el) throws IOException {
         String[] data = el.toArray();
-        File csvFile = null;
-
-        if(el instanceof Log || el instanceof Consumption){
+        File csvFile;
+        
+        if (el instanceof Log || el instanceof Consumption) {
             csvFile = new File("log.csv");
-        }
-        else {
+        } else if (el instanceof Exercise) {
+            csvFile = new File("exercise.csv");
+        } else {
             csvFile = new File("food.csv");
         }
         
+        // Check if the food name already exists
+        if (el instanceof Food && checkIfExists(csvFile, data[1])) {
+            System.out.println("Food name already exists. Skipping writing to file.");
+            return;
+        }
+
         FileWriter fileWriter = new FileWriter(csvFile, true);
 
-
-            StringBuilder line = new StringBuilder();
-            for (int i = 0; i < data.length; i++) {
-                line.append(data[i].replaceAll("\"","\"\""));
-                if (i != data.length - 1) {
-                    line.append(',');
-                }
+        StringBuilder line = new StringBuilder();
+        for (int i = 0; i < data.length; i++) {
+            line.append(data[i].replaceAll("\"", "\"\""));
+            if (i != data.length - 1) {
+                line.append(',');
             }
-            line.append("\n");
-            fileWriter.write(line.toString());
-        
-        fileWriter.close();
+        }
+        line.append("\n");
+        fileWriter.write(line.toString());
 
+        fileWriter.close();
     }
 
-    public List<List<String>> reading(int id) throws FileNotFoundException, IOException{
-
+    public List<List<String>> reading(int id) throws FileNotFoundException, IOException {
         String name = "";
-        if(id == 1){
+        if (id == 1) {
             name = "food.csv";
-        }
-        else {
+        } else if (id == 2) {
+            name = "exercise.csv";
+        } else {
             name = "log.csv";
         }
 
@@ -54,61 +58,62 @@ class CSVWriter {
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",");
                 records.add(Arrays.asList(values));
-                
             }
-
         }
         return records;
     }
 
-    public Element getByName(int id, String name) throws FileNotFoundException, IOException{
 
-        Element food = null;
-        List<List<String>> list = null;
-
-        //reading 1 = food.csv
-        //else = log.csv
-
-        if(id == 1 || id == 0){
-            list = reading(1);
-        }
-        else {
-            list = reading(0);
-        }
-        
-        for (int i = 0; i < list.size(); i++) {
-            if(list.get(i).contains(name)){
-                
-                List<String> inList = list.get(i);
-                
-                if(id == 0 && inList.contains("b")){
-                    food = new Food(name, Integer.parseInt(inList.get(2)), Integer.parseInt(inList.get(3)), Integer.parseInt(inList.get(4)), Integer.parseInt(inList.get(5)));
+    private boolean checkIfExists(File csvFile, String foodName) {
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.contains(foodName)) {
+                    return true; // Food name already exists in the file
                 }
-                else if(id == 1 && inList.contains("r")){
-                    ArrayList al = new ArrayList<>();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false; // Food name does not exist in the file
+    }
+
+    public Element getByName(int id, String name) throws FileNotFoundException, IOException {
+        Element element = null;
+        List<List<String>> list = reading(id);
+
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).contains(name)) {
+                List<String> inList = list.get(i);
+
+                if (id == 0 && inList.contains("b")) {
+                    element = new Food(name, Integer.parseInt(inList.get(2)), Integer.parseInt(inList.get(3)),
+                            Integer.parseInt(inList.get(4)), Integer.parseInt(inList.get(5)));
+                } else if (id == 1 && inList.contains("r")) {
+                    ArrayList<String> al = new ArrayList<>();
                     for (int j = 1; j < inList.size(); j++) {
                         al.add(inList.get(j));
                     }
-                    food = new Recipe(name, al);
-                }
-                else if(id == 2 && inList.contains("w") && inList.get(0).contains(name)){
-                    food = new Log(Integer.parseInt(inList.get(0)), Integer.parseInt(inList.get(1)), Integer.parseInt(inList.get(2)), Double.parseDouble(inList.get(4)));
-                }
-                else if(id == 3 && inList.contains("f")){
-                    ArrayList al = new ArrayList<>();
+                    element = new Recipe(name, al);
+                } else if (id == 2 && inList.contains("e")) {
+                    element = new Exercise(name, Integer.parseInt(inList.get(2)));
+                } else if (id == 3 && inList.contains("w") && inList.get(0).contains(name)) {
+                    element = new Log(Integer.parseInt(inList.get(0)), Integer.parseInt(inList.get(1)),
+                            Integer.parseInt(inList.get(2)), Double.parseDouble(inList.get(4)));
+                } else if (id == 4 && inList.contains("f")) {
+                    ArrayList<String> al = new ArrayList<>();
                     for (int j = 3; j < inList.size(); j++) {
                         al.add(inList.get(j));
                     }
-                    food = new Consumption(Integer.parseInt(inList.get(0)), Integer.parseInt(inList.get(1)), Integer.parseInt(inList.get(2)), al);
+                    element = new Consumption(Integer.parseInt(inList.get(0)), Integer.parseInt(inList.get(1)),
+                            Integer.parseInt(inList.get(2)), al);
                 }
-                
             }
         }
-        return food;
+        return element;
     }
 
-    public String[] getProductNames(){
-
+    public String[] getProductNames() {
         List<List<String>> list = null;
 
         try {
@@ -118,13 +123,13 @@ class CSVWriter {
         }
 
         String[] arr = null;
-        ArrayList al = new ArrayList<>();
+        ArrayList<String> al = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i++) {
             List<String> inList = list.get(i);
 
             for (int j = 0; j < inList.size(); j++) {
-                if(inList.contains("b")){
+                if (inList.get(j).equals("b")) {
                     al.add(inList.get(1));
                 }
             }
@@ -132,7 +137,7 @@ class CSVWriter {
 
         arr = new String[al.size()];
         for (int i = 0; i < al.size(); i++) {
-            arr[i] = (String)al.get(i);
+            arr[i] = al.get(i);
         }
         return arr;
     }
@@ -240,6 +245,23 @@ class Consumption extends Element{
         for (int i = 0; i < arli.size(); i++) {
             arr[i] = String.valueOf(arli.get(i));
         }
+        return arr;
+    }
+}
+
+
+class Exercise extends Element {
+
+    private String name;
+    private int ccal;
+
+    public Exercise(String _name, int _ccal) {
+        name = _name;
+        ccal = _ccal;
+    }
+
+    public String[] toArray() {
+        String[] arr = { "e", name, String.valueOf(ccal) };
         return arr;
     }
 }
