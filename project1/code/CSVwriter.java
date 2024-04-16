@@ -6,13 +6,12 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 
-
 class CSVWriter {
 
     public void write(Element el) throws IOException {
         String[] data = el.toArray();
         File csvFile;
-        
+
         if (el instanceof Log || el instanceof Consumption) {
             csvFile = new File("log.csv");
         } else if (el instanceof Exercise) {
@@ -20,7 +19,7 @@ class CSVWriter {
         } else {
             csvFile = new File("food.csv");
         }
-        
+
         // Check if the food name already exists
         if (el instanceof Food && checkIfExists(csvFile, data[1])) {
             System.out.println("Food name already exists. Skipping writing to file.");
@@ -44,7 +43,7 @@ class CSVWriter {
 
     public List<List<String>> reading(int id) throws FileNotFoundException, IOException {
         String name = "";
-        if (id == 1) {
+        if (id == 1 || id == 0) {
             name = "food.csv";
         } else if (id == 2) {
             name = "exercise.csv";
@@ -62,7 +61,6 @@ class CSVWriter {
         }
         return records;
     }
-
 
     private boolean checkIfExists(File csvFile, String foodName) {
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
@@ -82,37 +80,80 @@ class CSVWriter {
         Element element = null;
         List<List<String>> list = reading(id);
 
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).contains(name)) {
-                List<String> inList = list.get(i);
-
-                if (id == 0 && inList.contains("b")) {
-                    element = new Food(name, Integer.parseInt(inList.get(2)), Integer.parseInt(inList.get(3)),
-                            Integer.parseInt(inList.get(4)), Integer.parseInt(inList.get(5)));
-                } else if (id == 1 && inList.contains("r")) {
-                    ArrayList<String> al = new ArrayList<>();
-                    for (int j = 1; j < inList.size(); j++) {
-                        al.add(inList.get(j));
+        for (List<String> entry : list) {
+            // Ensure the entry has enough elements to parse
+            if (entry.size() >= 5) {
+                // Check if the entry matches the specified name
+                if (entry.get(1).equals(name)) {
+                    if (id == 0 && entry.contains("b")) {
+                        // Parse Food entry
+                        element = new Food(name, Integer.parseInt(entry.get(2)), Integer.parseInt(entry.get(3)),
+                                Integer.parseInt(entry.get(4)), Integer.parseInt(entry.get(5)));
+                    } else if (id == 1 && entry.contains("r")) {
+                        // Parse Recipe entry
+                        ArrayList<String> al = new ArrayList<>(entry.subList(1, entry.size()));
+                        element = new Recipe(name, al);
+                    } else if (id == 2 && entry.contains("e")) {
+                        // Parse Exercise entry
+                        element = new Exercise(name, Integer.parseInt(entry.get(1)));
+                    } else if (id == 3 && entry.contains("w")) {
+                        // Parse Log entry
+                        element = new Log(Integer.parseInt(entry.get(0)), Integer.parseInt(entry.get(1)),
+                                Integer.parseInt(entry.get(2)), Double.parseDouble(entry.get(4)));
+                    } else if (id == 4 && entry.contains("f")) {
+                        // Parse Consumption entry
+                        ArrayList<String> al = new ArrayList<>(entry.subList(1, entry.size()));
+                        element = new Consumption(Integer.parseInt(entry.get(0)), Integer.parseInt(entry.get(1)),
+                                Integer.parseInt(entry.get(2)), al);
                     }
-                    element = new Recipe(name, al);
-                } else if (id == 2 && inList.contains("e")) {
-                    element = new Exercise(name, Integer.parseInt(inList.get(2)));
-                } else if (id == 3 && inList.contains("w") && inList.get(0).contains(name)) {
-                    element = new Log(Integer.parseInt(inList.get(0)), Integer.parseInt(inList.get(1)),
-                            Integer.parseInt(inList.get(2)), Double.parseDouble(inList.get(4)));
-                } else if (id == 4 && inList.contains("f")) {
-                    ArrayList<String> al = new ArrayList<>();
-                    for (int j = 3; j < inList.size(); j++) {
-                        al.add(inList.get(j));
-                    }
-                    element = new Consumption(Integer.parseInt(inList.get(0)), Integer.parseInt(inList.get(1)),
-                            Integer.parseInt(inList.get(2)), al);
                 }
             }
         }
         return element;
     }
 
+    public Element getLogByDate(int id, int year, int month, int day) throws IOException {
+        List<List<String>> logList = reading(3); // Assuming logs are stored with id 3
+        Element foundEntry = null;
+
+        // Iterate over the log list
+        for (List<String> logEntry : logList) {
+            // Assuming the format of log entry is "year,month,day,..."
+            int logYear = Integer.parseInt(logEntry.get(0));
+            int logMonth = Integer.parseInt(logEntry.get(1));
+            int logDay = Integer.parseInt(logEntry.get(2));
+
+            // Check if the log entry matches the specified date
+            if (logYear == year && logMonth == month && logDay == day) {
+                // Check if the entry matches the specified type and update the found entry
+                if ((id == 3 && logEntry.contains("w")) || (id == 4 && logEntry.contains("f"))) {
+                    foundEntry = parseEntry(id, logEntry); // Parse the entry based on its type
+                }
+            }
+        }
+        return foundEntry; // Return the last found entry
+    }
+
+    // Parse the log or consumption entry based on its type
+    private Element parseEntry(int id, List<String> entry) {
+        switch (id) {
+            case 3:
+                // Parse Log entry
+                double weight = Double.parseDouble(entry.get(4)); // Assuming weight is at index 3
+                return new Log(Integer.parseInt(entry.get(0)), Integer.parseInt(entry.get(1)),
+                        Integer.parseInt(entry.get(2)), weight);
+            case 4:
+                // Parse Consumption entry
+                ArrayList<String> details = new ArrayList<>(entry.subList(3, entry.size()));
+                return new Consumption(Integer.parseInt(entry.get(0)), Integer.parseInt(entry.get(1)),
+                        Integer.parseInt(entry.get(2)), details);
+            default:
+                return null; // Unknown entry type
+        }
+    }
+
+
+    
     public String[] getProductNames() {
         List<List<String>> list = null;
 
@@ -154,29 +195,35 @@ class Element {
     }
 }
 
-class Food  extends Element{
+class Food extends Element {
 
     private String name;
     private int ccal, fat, carbohydrates, protein;
 
-    public Food(String _name, int _ccal, int _fat, int _carbohydrates, int _protein){
-        name = _name; ccal = _ccal; fat = _fat; carbohydrates = _carbohydrates; protein = _protein;
+    public Food(String _name, int _ccal, int _fat, int _carbohydrates, int _protein) {
+        name = _name;
+        ccal = _ccal;
+        fat = _fat;
+        carbohydrates = _carbohydrates;
+        protein = _protein;
     }
 
     public String[] toArray() {
-        String[] arr = {"b", name, String.valueOf(ccal), String.valueOf(fat), String.valueOf(protein), String.valueOf(carbohydrates)};
+        String[] arr = { "b", name, String.valueOf(ccal), String.valueOf(fat), String.valueOf(protein),
+                String.valueOf(carbohydrates) };
         return arr;
     }
-    
+
 }
 
-class Recipe extends Element{
+class Recipe extends Element {
 
     private String name;
     private ArrayList na;
 
-    public Recipe(String _name, ArrayList names_amounts){
-        name = _name;  na = names_amounts;
+    public Recipe(String _name, ArrayList names_amounts) {
+        name = _name;
+        na = names_amounts;
     }
 
     public String[] toArray() {
@@ -184,8 +231,8 @@ class Recipe extends Element{
         String[] arr = null;
         ArrayList arli = new ArrayList<>();
 
-
-        arli.add("r"); arli.add(name);
+        arli.add("r");
+        arli.add(name);
 
         for (int i = 0; i < na.size(); i++) {
             arli.add(na.get(i));
@@ -199,42 +246,42 @@ class Recipe extends Element{
 
         return arr;
     }
-    
+
 }
 
-class Log extends Element{
+class Log extends Element {
 
     private String date;
     private double weight;
 
-    public Log(int year, int month, int day, double _weight){
+    public Log(int year, int month, int day, double _weight) {
         date = String.valueOf(year) + "," + String.valueOf(month) + "," + String.valueOf(day);
         weight = _weight;
     }
 
     public String[] toArray() {
-        String[] arr = {date, "w", String.valueOf(weight)};
+        String[] arr = { date, "w", String.valueOf(weight) };
         return arr;
     }
 }
 
-class Consumption extends Element{
+class Consumption extends Element {
 
     private String date;
     private ArrayList na;
 
-    public Consumption(int year, int month, int day, ArrayList names_amounts){
+    public Consumption(int year, int month, int day, ArrayList names_amounts) {
         date = String.valueOf(year) + "," + String.valueOf(month) + "," + String.valueOf(day);
         na = names_amounts;
     }
 
-
     public String[] toArray() {
-        
+
         String[] arr = null;
         ArrayList arli = new ArrayList<>();
 
-        arli.add(date); arli.add("f");
+        arli.add(date);
+        arli.add("f");
 
         for (int i = 0; i < na.size(); i++) {
             arli.add(na.get(i));
@@ -248,7 +295,6 @@ class Consumption extends Element{
         return arr;
     }
 }
-
 
 class Exercise extends Element {
 
