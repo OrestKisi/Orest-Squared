@@ -12,7 +12,7 @@ class CSVWriter {
         String[] data = el.toArray();
         File csvFile;
 
-        if (el instanceof Log || el instanceof Consumption) {
+        if (el instanceof Log || el instanceof Consumption || el instanceof CalorieLimit || el instanceof ExercisePerformed) {
             csvFile = new File("log.csv");
         } else if (el instanceof Exercise) {
             csvFile = new File("exercise.csv");
@@ -79,10 +79,11 @@ class CSVWriter {
     public Element getByName(int id, String name) throws FileNotFoundException, IOException {
         Element element = null;
         List<List<String>> list = reading(id);
-
+    
         for (List<String> entry : list) {
             // Ensure the entry has enough elements to parse
-            if (entry.size() >= 5) {
+            if (entry.size() >= 5) { // Check if the entry has at least 6 elements
+
                 // Check if the entry matches the specified name
                 if (entry.get(1).equals(name)) {
                     if (id == 0 && entry.contains("b")) {
@@ -93,24 +94,18 @@ class CSVWriter {
                         // Parse Recipe entry
                         ArrayList<String> al = new ArrayList<>(entry.subList(1, entry.size()));
                         element = new Recipe(name, al);
-                    } else if (id == 2 && entry.contains("e")) {
-                        // Parse Exercise entry
-                        element = new Exercise(name, Integer.parseInt(entry.get(1)));
-                    } else if (id == 3 && entry.contains("w")) {
-                        // Parse Log entry
-                        element = new Log(Integer.parseInt(entry.get(0)), Integer.parseInt(entry.get(1)),
-                                Integer.parseInt(entry.get(2)), Double.parseDouble(entry.get(4)));
-                    } else if (id == 4 && entry.contains("f")) {
-                        // Parse Consumption entry
-                        ArrayList<String> al = new ArrayList<>(entry.subList(1, entry.size()));
-                        element = new Consumption(Integer.parseInt(entry.get(0)), Integer.parseInt(entry.get(1)),
-                                Integer.parseInt(entry.get(2)), al);
-                    }
+                    } 
                 }
-            }
+            }else {
+                if (id == 2 && entry.contains("e") && entry.get(1).equals(name)) {
+                    // Parse Exercise entry
+                    element = new Exercise(name, Double.parseDouble(entry.get(2)));
+                }
+            } 
         }
         return element;
     }
+    
 
     public Element getLogByDate(int id, int year, int month, int day) throws IOException {
         List<List<String>> logList = reading(3); // Assuming logs are stored with id 3
@@ -126,7 +121,7 @@ class CSVWriter {
             // Check if the log entry matches the specified date
             if (logYear == year && logMonth == month && logDay == day) {
                 // Check if the entry matches the specified type and update the found entry
-                if ((id == 3 && logEntry.contains("w")) || (id == 4 && logEntry.contains("f"))) {
+                if ((id == 3 && logEntry.contains("w")) || (id == 4 && logEntry.contains("f")) || (id == 5 && logEntry.contains("c") || (id == 6 && logEntry.contains("e"))) ) {
                     foundEntry = parseEntry(id, logEntry); // Parse the entry based on its type
                 }
             }
@@ -139,7 +134,7 @@ class CSVWriter {
         switch (id) {
             case 3:
                 // Parse Log entry
-                double weight = Double.parseDouble(entry.get(4)); // Assuming weight is at index 3
+                double weight = Double.parseDouble(entry.get(4)); 
                 return new Log(Integer.parseInt(entry.get(0)), Integer.parseInt(entry.get(1)),
                         Integer.parseInt(entry.get(2)), weight);
             case 4:
@@ -147,9 +142,50 @@ class CSVWriter {
                 ArrayList<String> details = new ArrayList<>(entry.subList(3, entry.size()));
                 return new Consumption(Integer.parseInt(entry.get(0)), Integer.parseInt(entry.get(1)),
                         Integer.parseInt(entry.get(2)), details);
+            case 5:
+                // Parse CalLimit entry
+                double ccal = Double.parseDouble(entry.get(4)); 
+                return new CalorieLimit(Integer.parseInt(entry.get(0)), Integer.parseInt(entry.get(1)),
+                        Integer.parseInt(entry.get(2)), ccal);
+
+            case 6:
+                // Parse ExercicePerformed entry
+                String name = entry.get(4);
+                double mins = Double.parseDouble(entry.get(5));
+                return new ExercisePerformed(Integer.parseInt(entry.get(0)), Integer.parseInt(entry.get(1)),
+                        Integer.parseInt(entry.get(2)), name, mins);
             default:
                 return null; // Unknown entry type
         }
+    }
+
+
+    public List<ExercisePerformed> getExercisesPerformedByDate(int year, int month, int day) throws IOException {
+        List<List<String>> logList = reading(6); // Assuming exercises performed are stored with id 6
+        List<ExercisePerformed> foundEntries = new ArrayList<>();
+    
+        // Iterate over the log list
+        for (List<String> logEntry : logList) {
+            // Assuming the format of log entry is "year,month,day,..."
+            int logYear = Integer.parseInt(logEntry.get(0));
+            int logMonth = Integer.parseInt(logEntry.get(1));
+            int logDay = Integer.parseInt(logEntry.get(2));
+    
+            // Check if the log entry matches the specified date
+            if (logYear == year && logMonth == month && logDay == day && logEntry.contains("e")) {
+                // Parse the exercise performed entry and add it to the list of found entries
+                foundEntries.add(parseExercisePerformed(logEntry));
+            }
+        }
+        return foundEntries;
+    }
+    
+    // Parse the ExercisePerformed entry
+    private ExercisePerformed parseExercisePerformed(List<String> entry) {
+        String name = entry.get(4);
+        double mins = Double.parseDouble(entry.get(5));
+        return new ExercisePerformed(Integer.parseInt(entry.get(0)), Integer.parseInt(entry.get(1)),
+                Integer.parseInt(entry.get(2)), name, mins);
     }
 
 
@@ -171,6 +207,35 @@ class CSVWriter {
 
             for (int j = 0; j < inList.size(); j++) {
                 if (inList.get(j).equals("b")) {
+                    al.add(inList.get(1));
+                }
+            }
+        }
+
+        arr = new String[al.size()];
+        for (int i = 0; i < al.size(); i++) {
+            arr[i] = al.get(i);
+        }
+        return arr;
+    }
+
+    public String[] getExerciseNames() {
+        List<List<String>> list = null;
+
+        try {
+            list = reading(2);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String[] arr = null;
+        ArrayList<String> al = new ArrayList<>();
+
+        for (int i = 0; i < list.size(); i++) {
+            List<String> inList = list.get(i);
+
+            for (int j = 0; j < inList.size(); j++) {
+                if (inList.get(j).equals("e")) {
                     al.add(inList.get(1));
                 }
             }
@@ -299,15 +364,48 @@ class Consumption extends Element {
 class Exercise extends Element {
 
     private String name;
-    private int ccal;
+    private double ccal;
 
-    public Exercise(String _name, int _ccal) {
+    public Exercise(String _name, double _ccal) {
         name = _name;
         ccal = _ccal;
     }
 
     public String[] toArray() {
         String[] arr = { "e", name, String.valueOf(ccal) };
+        return arr;
+    }
+}
+
+class CalorieLimit extends Element {
+
+    private String date;
+    private double ccal;
+
+    public CalorieLimit(int year, int month, int day, double _ccal) {
+        date = String.valueOf(year) + "," + String.valueOf(month) + "," + String.valueOf(day);
+        ccal = _ccal;
+    }
+
+    public String[] toArray() {
+        String[] arr = { date, "c", String.valueOf(ccal) };
+        return arr;
+    }
+}
+
+class ExercisePerformed extends Element {
+
+    private String date, name;
+    private double min;
+
+    public ExercisePerformed(int year, int month, int day, String _name, double _min) {
+        date = String.valueOf(year) + "," + String.valueOf(month) + "," + String.valueOf(day);
+        min = _min;
+        name = _name;
+    }
+
+    public String[] toArray() {
+        String[] arr = { date, "e", name, String.valueOf(min) };
         return arr;
     }
 }
