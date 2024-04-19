@@ -1,5 +1,5 @@
 b,orest,4,1,10,8
-r,hotdog,hot,2.0,bun,2.0
+r,hotdog,orest,1,bongiaornamiga,1
 b,adadad,13,13,13,13
 b,oresto,13,767,35,878
 b,bongiaornamiga,13,676,64,887
@@ -7,3 +7,12 @@ b,banan,15,5555,79,22
 b,adjdaod,1313,99,5565,44
 b,banan,343,66,757,99
 b,masha,22,99,66,99
+b,vatat,234,4756,57,243
+r,kawabanga,banan,1,banan,1,banan,1,masha,1,vatat,1,vatat,1
+b,cristian,13,45,35,43
+b,max,53,35,67,46
+r,lorem,cristian,1,cristian,1,max,1,max,1,max,1
+b,alalla,13,54,35,46
+r,recipe001,bongiaornamiga,1,bongiaornamiga,1,bongiaornamiga,1,bongiaornamiga,1,bongiaornamiga,1
+r,recipe002,banan,1,banan,1,banan,1
+r,recipe003,max,1,max,1,max,1,max,1

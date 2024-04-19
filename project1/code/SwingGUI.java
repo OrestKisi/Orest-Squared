@@ -4,7 +4,6 @@
 import javax.swing.*;
 
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -37,6 +36,9 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.time.Day;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -99,24 +101,30 @@ public class SwingGUI {
         String[] items;
 
         if (id == 0) {
-            items = cw.getProductNames();
+                items = cw.getProductNames();
+                String[] temp = Arrays.copyOf(items, items.length + 1);
+                temp[temp.length - 1] = "Other";
+                items = temp;
 
-            String[] temp = Arrays.copyOf(items, items.length + 1);
-            temp[temp.length - 1] = "Other";
-            items = temp;
+            
 
         } else if (id == 1) {
-            items = cw.getExerciseNames();
+                items = cw.getExerciseNames();
+                String[] temp = Arrays.copyOf(items, items.length + 1);
+                temp[temp.length - 1] = "Other  ";
+                items = temp;
 
-            String[] temp = Arrays.copyOf(items, items.length + 1);
-            temp[temp.length - 1] = "Other  ";
-            items = temp;
+
+            
+
+            
 
         } else {
             items = new String[0];
         }
 
         comboBox.setModel(new DefaultComboBoxModel<>(items));
+
         comboBox.setBounds(x, y, w, h);
         comboBox.setSelectedIndex(0);
         comboBox.addItemListener(il);
@@ -125,9 +133,16 @@ public class SwingGUI {
 
     public static void addTextArea(int x, int y, int w, int h, JPanel panel) {
         JTextArea textArea = new JTextArea();
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
         textArea.setBounds(x, y, w, h);
         textArea.setEditable(false);
-        panel.add(textArea);
+
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setBounds(x, y, w, h);
+
+        panel.add(scrollPane);
     }
 
     public static void addDateChooser(int x, int y, int w, int h, JPanel win) {
@@ -139,6 +154,15 @@ public class SwingGUI {
 
         JDatePanelImpl datePanel = new JDatePanelImpl(model, properties);
         JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+
+        datePicker.addActionListener(e -> {
+            Date selectedDate = (Date) datePicker.getModel().getValue();
+            if (selectedDate != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // You can change the date format as needed
+                String formattedDate = sdf.format(selectedDate);
+                datePicker.getJFormattedTextField().setText(formattedDate);
+            }
+        });
 
         datePicker.setBounds(x, y, w, h);
 
@@ -155,10 +179,10 @@ public class SwingGUI {
 
         // Create XY chart
         JFreeChart chart = ChartFactory.createXYLineChart(
-                "My Progress",     // chart title
-                "Date",       // x-axis label
-                "Weight(kg)",       // y-axis label
-                dataset         // dataset
+                "My Progress", // chart title
+                "Date", // x-axis label
+                "Calories", // y-axis label
+                dataset // dataset
         );
 
         // Set font for chart title
@@ -168,18 +192,19 @@ public class SwingGUI {
         // Get plot and set fonts
         XYPlot plot = (XYPlot) chart.getPlot();
         plot.getDomainAxis().setLabelFont(font); // X-axis label font
-        plot.getRangeAxis().setLabelFont(font);  // Y-axis label font
+        plot.getRangeAxis().setLabelFont(font); // Y-axis label font
         plot.getDomainAxis().setTickLabelFont(font); // X-axis tick label font
-        plot.getRangeAxis().setTickLabelFont(font);  // Y-axis tick label font
+        plot.getRangeAxis().setTickLabelFont(font); // Y-axis tick label font
 
         // Set background color and outline
         plot.setBackgroundPaint(Color.GRAY);
         plot.setOutlinePaint(Color.BLUE);
-        plot.setOutlineStroke(new BasicStroke(5));
+        plot.setOutlineStroke(new BasicStroke(3));
 
         // Set line color
         XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
-        renderer.setSeriesPaint(0, Color.BLUE);
+        renderer.setSeriesPaint(0, Color.RED);
+        renderer.setSeriesPaint(1, Color.GREEN);
 
         // Customize the X-axis to display dates
         DateAxis domainAxis = new DateAxis("Date");
@@ -194,8 +219,6 @@ public class SwingGUI {
         // Add ChartPanel to the specified JPanel
         win.add(chartPanel);
     }
-
-    
 
     public static void addTab() {
         tabPanel = new JTabbedPane();
@@ -231,7 +254,6 @@ public class SwingGUI {
 
             addLabel("Description:   ", 50, 140, 120, 20, win);
             addTextArea(170, 140, 400, 350, win);
-
 
             addXYChart(0, 500, 590, 400, win);
         }
@@ -272,7 +294,6 @@ public class SwingGUI {
 
             addBttn("Add Product to Log", 170, 260, 200, 30, win);
 
-
             addLabel("Calorie Limit: ", 50, 320, 100, 20, win);
             addTextField(170, 320, 150, 20, win, true);
 
@@ -301,7 +322,7 @@ public class SwingGUI {
             addBttn("Search ", 330, 60, 100, 30, win);
 
             addLabel("Description:  ", 50, 100, 120, 20, win);
-            addTextArea(170, 100, 350, 200, win);
+            addTextArea(170, 100, 400, 500, win);
         }
 
         // add recipes
@@ -371,36 +392,35 @@ public class SwingGUI {
         return txt;
     }
 
-
     public static JComboBox<String> getJComboBoxByJLabelText(String title) {
         Component[] components;
         JComboBox<String> comboBox = new JComboBox<>();
         JPanel pan = new JPanel();
-    
+
         for (int i = 0; i < tabPanel.getComponents().length; i++) {
             if (tabPanel.getComponents()[i] instanceof JPanel) {
                 pan = (JPanel) tabPanel.getComponents()[i];
-    
+
                 components = pan.getComponents();
                 for (int j = 0; j < components.length; j++) {
-    
+
                     if (components[j] instanceof JLabel) {
                         JLabel jl = (JLabel) components[j];
                         if (jl.getText().equals(title)) {
                             comboBox = (JComboBox<String>) components[j + 1];
                         }
                     }
-    
+
                 }
             }
         }
-    
+
         return comboBox;
     }
 
-
     public static JTextArea getJTextAreaByJLabelText(String title) {
         Component[] components;
+        JScrollPane jsc = new JScrollPane();
         JTextArea txt = new JTextArea();
         JPanel pan = new JPanel();
 
@@ -414,7 +434,8 @@ public class SwingGUI {
                     if (components[j] instanceof JLabel) {
                         JLabel jl = (JLabel) components[j];
                         if (jl.getText().equals(title)) {
-                            txt = (JTextArea) components[j + 1];
+                            jsc = (JScrollPane) components[j + 1];
+                            txt = (JTextArea) jsc.getViewport().getView();
                         }
                     }
 
@@ -474,20 +495,40 @@ public class SwingGUI {
         return date;
     }
 
+    public static ChartPanel getChartPanel() {
+        Component[] components;
+        ChartPanel chartPanel = new ChartPanel(null);
+        JPanel pan = new JPanel();
+
+        for (int i = 0; i < tabPanel.getComponents().length; i++) {
+            if (tabPanel.getComponents()[i] instanceof JPanel) {
+                pan = (JPanel) tabPanel.getComponents()[i];
+
+                components = pan.getComponents();
+                for (int j = 0; j < components.length; j++) {
+
+                    if (components[j] instanceof ChartPanel) {
+                        chartPanel = (ChartPanel) components[j];
+                    }
+
+                }
+            }
+        }
+
+        return chartPanel;
+    }
+
     public static void addActionListener() {
         al = new ActionListener() {
             ArrayList products = new ArrayList<>();
 
-
-
-            
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 JButton b = (JButton) e.getSource();
 
                 // Check if the button is "Add Product to Recipe"
                 if (b.getText().equals("Add Product to Recipe")) {
                     JComboBox<String> comboBox = getJComboBoxByJLabelText("Product: "); // Assuming method to get
-                                                                                             // combobox by label text
+                                                                                        // combobox by label text
 
                     // Get the selected item in the combobox
                     String selectedProduct = (String) comboBox.getSelectedItem();
@@ -500,10 +541,13 @@ public class SwingGUI {
                             Element productElement = cw.getByName(0, selectedProduct); // Assuming 0 is the id for
                                                                                        // products in food.csv
 
-
                             if (productElement != null) {
 
-                                
+                                if (getJTextAreaByJLabelText("Current: ").getText()
+                                        .contains(" recipe added to food.csv")) {
+                                    getJTextAreaByJLabelText("Current: ").setText("");
+                                }
+
                                 Food selectedFood = (Food) productElement;
                                 getJTextAreaByJLabelText("Current: ")
                                         .append("1x - " + selectedFood.toArray()[1] + "("
@@ -520,6 +564,11 @@ public class SwingGUI {
                     } else {
                         // Continue with the code under the //OTHER comment
                         // Adding product to textarea
+
+                        if (getJTextAreaByJLabelText("Current: ").getText().contains(" recipe added to food.csv")) {
+                            getJTextAreaByJLabelText("Current: ").setText("");
+                        }
+
                         getJTextAreaByJLabelText("Current: ")
                                 .append("1x - " + getJTextFieldByJLabelText("Product Name: ").getText() + "("
                                         + getJTextFieldByJLabelText("Calories: ").getText() + "cal, "
@@ -541,10 +590,6 @@ public class SwingGUI {
                     }
                 }
 
-
-
-
-
                 // Add Recipe tab
                 if (b.getText().equals("Add Recipe")) {
                     // Messaging on textarea
@@ -558,11 +603,6 @@ public class SwingGUI {
                     products.clear();
                 }
 
-
-
-
-
-
                 // Add Exercise tab
                 if (b.getText().equals("Add Exercise")) {
                     try {
@@ -574,19 +614,16 @@ public class SwingGUI {
                     }
                 }
 
-
-
-
-
                 // Add Product to Log
                 if (b.getText().equals("Add Product to Log")) {
 
-                    JComboBox<String> comboBox = getJComboBoxByJLabelText("Product Consumed:  "); // Assuming method to get
-                                                                                             // combobox by label text
+                    JComboBox<String> comboBox = getJComboBoxByJLabelText("Product Consumed:  "); // Assuming method to
+                                                                                                  // get
+                    // combobox by label text
 
                     // Get the selected item in the combobox
                     String selectedProduct = (String) comboBox.getSelectedItem();
-                    
+
                     if (!selectedProduct.equals("Other")) {
                         // Search for the selected product in food.csv and add it to the recipe and
                         // textarea
@@ -595,10 +632,12 @@ public class SwingGUI {
                             Element productElement = cw.getByName(0, selectedProduct); // Assuming 0 is the id for
                                                                                        // products in food.csv
 
-
                             if (productElement != null) {
 
-                                
+                                if (getJTextAreaByJLabelText("Current:  ").getText().contains("Log with date ")) {
+                                    getJTextAreaByJLabelText("Current:  ").setText("");
+                                }
+
                                 Food selectedFood = (Food) productElement;
                                 getJTextAreaByJLabelText("Current:  ")
                                         .append("1x - " + selectedFood.toArray()[1] + "("
@@ -614,110 +653,95 @@ public class SwingGUI {
                         }
                     } else {
 
+                        // OTHER
+                        // Adding product to textarea
+                        if (getJTextAreaByJLabelText("Current:  ").getText().contains("Log with date ")) {
+                            getJTextAreaByJLabelText("Current:  ").setText("");
+                        }
 
-
-                    //OTHER
-                    // Adding product to textarea
-                    getJTextAreaByJLabelText("Current:  ")
-                            .append("1x - " + getJTextFieldByJLabelText("Product Name:  ").getText() + "("
-                                    + getJTextFieldByJLabelText("Calories:  ").getText() + "cal, "
-                                    + getJTextFieldByJLabelText("Fat(g):  ").getText() + "g of fat, "
-                                    + getJTextFieldByJLabelText("Protein(g):  ").getText() + "g of protein, "
-                                    + getJTextFieldByJLabelText("Carbohydrates:  ").getText() + " carbohydrates.");
-                    try {
-                        // Adding product to food.csv
-                        cw.write(new Food(getJTextFieldByJLabelText("Product Name:  ").getText(),
-                                Integer.parseInt(getJTextFieldByJLabelText("Calories:  ").getText()),
-                                Integer.parseInt(getJTextFieldByJLabelText("Fat(g):  ").getText()),
-                                Integer.parseInt(getJTextFieldByJLabelText("Carbohydrates:  ").getText()),
-                                Integer.parseInt(getJTextFieldByJLabelText("Protein(g):  ").getText())));
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
+                        getJTextAreaByJLabelText("Current:  ")
+                                .append("1x - " + getJTextFieldByJLabelText("Product Name:  ").getText() + "("
+                                        + Integer.parseInt(getJTextFieldByJLabelText("Calories:  ").getText()) + "cal, "
+                                        + Integer.parseInt(getJTextFieldByJLabelText("Fat(g):  ").getText())
+                                        + "g of fat, "
+                                        + Integer.parseInt(getJTextFieldByJLabelText("Protein(g):  ").getText())
+                                        + "g of protein, "
+                                        + Integer.parseInt(getJTextFieldByJLabelText("Carbohydrates:  ").getText())
+                                        + " carbohydrates.");
+                        try {
+                            // Adding product to food.csv
+                            cw.write(new Food(getJTextFieldByJLabelText("Product Name:  ").getText(),
+                                    Integer.parseInt(getJTextFieldByJLabelText("Calories:  ").getText()),
+                                    Integer.parseInt(getJTextFieldByJLabelText("Fat(g):  ").getText()),
+                                    Integer.parseInt(getJTextFieldByJLabelText("Carbohydrates:  ").getText()),
+                                    Integer.parseInt(getJTextFieldByJLabelText("Protein(g):  ").getText())));
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                        products.add(getJTextFieldByJLabelText("Product Name:  ").getText());
+                        products.add(1);
                     }
-                    products.add(getJTextFieldByJLabelText("Product Name:  ").getText());
-                    products.add(1);
                 }
-                }
-
-
-
-
-
-
-                
-
-
-
 
                 // Add Log
                 if (b.getText().equals("Add Log")) {
 
-
-
-                    String selectedExercise = (String)getJComboBoxByJLabelText("Excersice Performed: ").getSelectedItem();
+                    String selectedExercise = (String) getJComboBoxByJLabelText("Excersice Performed: ")
+                            .getSelectedItem();
 
                     String[] str = getDateByLabelText("Date:  ");
                     double weight = Double.parseDouble(getJTextFieldByJLabelText("Current weight:  ").getText());
-                    
+
                     double calorieLimit = Double.parseDouble(getJTextFieldByJLabelText("Calorie Limit: ").getText());
-                    
+
                     double timeSpent = Double.parseDouble(getJTextFieldByJLabelText("Time Spent: ").getText());
 
                     String exerciseName = "";
                     double caloriesBurn = 0;
 
+                    Consumption consumption = new Consumption(Integer.parseInt(str[0]), Integer.parseInt(str[1]),
+                            Integer.parseInt(str[2]), products);
+                    Log log = new Log(Integer.parseInt(str[0]), Integer.parseInt(str[1]), Integer.parseInt(str[2]),
+                            weight);
 
+                    CalorieLimit cl = new CalorieLimit(Integer.parseInt(str[0]), Integer.parseInt(str[1]),
+                            Integer.parseInt(str[2]), calorieLimit);
 
-                    Consumption consumption = new Consumption(Integer.parseInt(str[0]), Integer.parseInt(str[1]), Integer.parseInt(str[2]), products);
-                    Log log = new Log(Integer.parseInt(str[0]), Integer.parseInt(str[1]), Integer.parseInt(str[2]), weight);
-
-                    CalorieLimit cl = new CalorieLimit(Integer.parseInt(str[0]), Integer.parseInt(str[1]), Integer.parseInt(str[2]), calorieLimit);
-
-                    
-
-                    
-                    
                     try {
 
-                        if(selectedExercise.equals("Other  ")){
+                        if (selectedExercise.equals("Other  ")) {
 
                             exerciseName = getJTextFieldByJLabelText("Excersice Name: ").getText();
-                            caloriesBurn = Double.parseDouble(getJTextFieldByJLabelText("Calories Burn(ccal/min): ").getText());
+                            caloriesBurn = Double
+                                    .parseDouble(getJTextFieldByJLabelText("Calories Burn(ccal/min): ").getText());
 
-                            ExercisePerformed ef = new ExercisePerformed(Integer.parseInt(str[0]), Integer.parseInt(str[1]), Integer.parseInt(str[2]), exerciseName, timeSpent);
+                            ExercisePerformed ef = new ExercisePerformed(Integer.parseInt(str[0]),
+                                    Integer.parseInt(str[1]), Integer.parseInt(str[2]), exerciseName, timeSpent);
                             Exercise ex = new Exercise(exerciseName, caloriesBurn);
                             cw.write(ef);
                             cw.write(ex);
-                        }
-                        else {
+                        } else {
 
                             exerciseName = selectedExercise;
 
-                            ExercisePerformed ef = new ExercisePerformed(Integer.parseInt(str[0]), Integer.parseInt(str[1]), Integer.parseInt(str[2]), exerciseName, timeSpent);
+                            ExercisePerformed ef = new ExercisePerformed(Integer.parseInt(str[0]),
+                                    Integer.parseInt(str[1]), Integer.parseInt(str[2]), exerciseName, timeSpent);
                             cw.write(ef);
 
-
                         }
-
 
                         cw.write(log);
                         cw.write(consumption);
                         cw.write(cl);
 
-                        
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
 
-
-
-
-                    getJTextAreaByJLabelText("Current:  ").setText("Log with date " + str[0] + "/" + str[1] + "/" + str[2] + " added to log.csv");
+                    getJTextAreaByJLabelText("Current:  ")
+                            .setText("Log with date " + str[0] + "/" + str[1] + "/" + str[2] + " added to log.csv");
                     products.clear();
                 }
-
-
-
 
                 // Find Recipe
                 if (b.getText().equals("Search ")) {
@@ -726,24 +750,27 @@ public class SwingGUI {
                         Element el = cw.getByName(1, str);
 
                         if (el != null) {
-                            getJTextAreaByJLabelText("Description:  ").setText(str + "\nRecipe Contains: ");
+                            getJTextAreaByJLabelText("Description:  ")
+                                    .setText("Recipe Title: " + str + "\nRecipe Contains: ");
                             for (int i = 3; i < el.toArray().length; i += 2) {
+
+                                String foodname = el.toArray()[i];
+                                Food food = (Food) cw.getByName(0, foodname);
+
                                 getJTextAreaByJLabelText("Description:  ")
-                                        .append("\n" + el.toArray()[i] + " - " + el.toArray()[i + 1]);
+                                        .append("\n     " + el.toArray()[i + 1] + "x - " + foodname + "("
+                                                + food.toArray()[2] + " cal, " + food.toArray()[3] + " g of fat, "
+                                                + food.toArray()[4] + "g of protein, " + food.toArray()[5]
+                                                + " carbohydrates)");
                             }
-                        }
-                        else{
-                            
+                        } else {
+
                         }
 
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
                 }
-
-
-
-
 
                 // Find Log
                 if (b.getText().equals("Search")) {
@@ -760,15 +787,18 @@ public class SwingGUI {
                             if (logEntry != null) {
                                 // Display log details
                                 getJTextAreaByJLabelText("Description ").setText(
-                                        "Your weight on " + date[0] + "/" + date[1] + "/" + date[2] + " was " + logEntry.toArray()[2] + "kg");
+                                        "Your weight on " + date[0] + "/" + date[1] + "/" + date[2] + " was "
+                                                + logEntry.toArray()[2] + "kg");
 
                                 // Retrieve consumption details for the specified date
-                                Element consumptionEntry = cw.getLogByDate(4, Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
-                                Element calorieLimit = cw.getLogByDate(5, Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
+                                Element consumptionEntry = cw.getLogByDate(4, Integer.parseInt(date[0]),
+                                        Integer.parseInt(date[1]), Integer.parseInt(date[2]));
+                                Element calorieLimit = cw.getLogByDate(5, Integer.parseInt(date[0]),
+                                        Integer.parseInt(date[1]), Integer.parseInt(date[2]));
 
-                                List<ExercisePerformed> exPerfList = cw.getExercisesPerformedByDate(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
-
-
+                                List<ExercisePerformed> exPerfList = cw.getExercisesPerformedByDate(
+                                        Integer.parseInt(date[0]), Integer.parseInt(date[1]),
+                                        Integer.parseInt(date[2]));
 
                                 if (consumptionEntry != null) {
                                     // Display consumption details
@@ -783,10 +813,13 @@ public class SwingGUI {
 
                                             String name = consumptionData[i];
 
-                                            Food food = (Food)cw.getByName(0, name);
+                                            Food food = (Food) cw.getByName(0, name);
 
                                             getJTextAreaByJLabelText("Description ")
-                                                    .append("\n" + consumptionData[i + 1] + "x - " + name + "(" + food.toArray()[2] + " cal, " + food.toArray()[3] + "g of fat, " + food.toArray()[4] + "g of protein, " + food.toArray()[5] + " carbohydrates)");
+                                                    .append("\n" + consumptionData[i + 1] + "x - " + name + "("
+                                                            + food.toArray()[2] + " cal, " + food.toArray()[3]
+                                                            + "g of fat, " + food.toArray()[4] + "g of protein, "
+                                                            + food.toArray()[5] + " carbohydrates)");
                                         }
                                     }
                                 } else {
@@ -795,26 +828,20 @@ public class SwingGUI {
                                             .append("\n\nNo consumption recorded for the specified date.");
                                 }
 
-
-
-
                                 getJTextAreaByJLabelText("Description ").append("\n\nDaily Calorie Limit: ");
 
                                 if (calorieLimit != null) {
- 
 
                                     String[] calorieLimitData = calorieLimit.toArray();
 
-                                    getJTextAreaByJLabelText("Description ").append("\n" + calorieLimitData[2] + " ccal");
-                                    
+                                    getJTextAreaByJLabelText("Description ")
+                                            .append("\n" + calorieLimitData[2] + " ccal");
+
                                 } else {
                                     // Handle case where consumption for the given date was not found
                                     getJTextAreaByJLabelText("Description ")
                                             .append("\n2000.0 ccal");
                                 }
-
-
-                                
 
                                 if (exPerfList != null) {
                                     // Display consumption details
@@ -825,7 +852,8 @@ public class SwingGUI {
                                     for (ExercisePerformed exercisesPerformed : exPerfList) {
                                         // Access and process each exercise entry
                                         String[] exercisesPerformedData = exercisesPerformed.toArray();
-                                        getJTextAreaByJLabelText("Description ").append("\n" + exercisesPerformedData[2] + " was performed for " + exercisesPerformedData[3] + " minutes");
+                                        getJTextAreaByJLabelText("Description ").append("\n" + exercisesPerformedData[2]
+                                                + " was performed for " + exercisesPerformedData[3] + " minutes");
                                     }
 
                                 } else {
@@ -833,11 +861,6 @@ public class SwingGUI {
                                     getJTextAreaByJLabelText("Description ")
                                             .append("\n\nNo exercises recorded for the specified date.");
                                 }
-
-
-
-
-
 
                             } else {
                                 // Handle case where log for the given date was not found
@@ -850,15 +873,12 @@ public class SwingGUI {
                         }
                     } catch (IOException e1) {
                         e1.printStackTrace();
-                    } catch (NumberFormatException e2) {
+                    }/* catch (NumberFormatException e2) {
                         // Handle case where user input for date is not a number
                         getJTextAreaByJLabelText("Description ")
                                 .setText("Invalid date format. Please enter numbers for year, month, and day.");
-                    }
+                    }*/
                 }
-
-
-
 
                 // My Progress tab
                 if (b.getText().equals("Check")) {
@@ -873,29 +893,37 @@ public class SwingGUI {
                         LocalDate to = LocalDate.of(Integer.parseInt(toDate[0]), Integer.parseInt(toDate[1]),
                                 Integer.parseInt(toDate[2]));
 
+                        ChartPanel chartPanel = getChartPanel();
+                        JFreeChart chart = chartPanel.getChart();
+
+                        // Create a new time series collection
+                        TimeSeries seriesTotalCal = new TimeSeries("Total Calories Consumed");
+                        TimeSeries seriesTotalBurnt = new TimeSeries("Total Calories Expended");
+
+                        TimeSeriesCollection dataset = new TimeSeriesCollection();
+                        dataset.addSeries(seriesTotalCal);
+                        dataset.addSeries(seriesTotalBurnt);
+
                         // Initialize a StringBuilder to store the log entries
                         StringBuilder logEntries = new StringBuilder();
 
                         // Iterate through each day within the date range
                         for (LocalDate date = from; date.isBefore(to.plusDays(1)); date = date.plusDays(1)) {
                             // Attempt to retrieve log entry for the current date
-                            Element logEntry = cw.getLogByDate(3, date.getYear(), date.getMonthValue(), date.getDayOfMonth());
-                            Element calLimEntry = cw.getLogByDate(5, date.getYear(), date.getMonthValue(), date.getDayOfMonth());
-                            List<ExercisePerformed> exPerfEntryList = cw.getExercisesPerformedByDate(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
-                            Element consumptionEntry = cw.getLogByDate(4, date.getYear(), date.getMonthValue(), date.getDayOfMonth());
-
-                            
-
-                            
-
+                            Element logEntry = cw.getLogByDate(3, date.getYear(), date.getMonthValue(),
+                                    date.getDayOfMonth());
+                            Element calLimEntry = cw.getLogByDate(5, date.getYear(), date.getMonthValue(),
+                                    date.getDayOfMonth());
+                            List<ExercisePerformed> exPerfEntryList = cw.getExercisesPerformedByDate(date.getYear(),
+                                    date.getMonthValue(), date.getDayOfMonth());
+                            Element consumptionEntry = cw.getLogByDate(4, date.getYear(), date.getMonthValue(),
+                                    date.getDayOfMonth());
 
                             // If a log entry is found for the current date, append it to the StringBuilder
                             if (logEntry != null) {
                                 logEntries.append(date.toString()).append(" - Weight: ").append(logEntry.toArray()[2])
                                         .append("kg, Limit: ").append(calLimEntry.toArray()[2])
                                         .append("cal").append("\n");
-
-
 
                                 String[] consumptionData = consumptionEntry.toArray();
                                 double totalCal = 0.0;
@@ -912,8 +940,13 @@ public class SwingGUI {
                                     }
                                 }
 
-                                logEntries.append("   - Total calories from consumption: " + totalCal + "cal\n");
+                                if (totalCal != 0.0) {
+                                    seriesTotalCal.add(
+                                            new Day(date.getDayOfMonth(), date.getMonthValue(), date.getYear()),
+                                            totalCal);
+                                }
 
+                                logEntries.append("   - Total calories from consumption: " + totalCal + "cal\n");
 
                                 double totalBurnt = 0.0;
                                 for (int i = 0; i < exPerfEntryList.size(); i++) {
@@ -926,32 +959,39 @@ public class SwingGUI {
                                         double time = Double.parseDouble(exPerfEntry.toArray()[3]);
                                         double weight = Double.parseDouble(logEntry.toArray()[2]);
 
-                                        totalBurnt+= cal * (weight/100.0) * (time/60.0);
-                                        
+                                        totalBurnt += cal * (weight / 100.0) * (time / 60.0);
+
                                     }
                                 }
 
-                                logEntries.append("   - Total calories expended from exercises: " + round(totalBurnt, 1) + "cal\n");
+                                if (totalBurnt != 0.0) {
+                                    seriesTotalBurnt.add(
+                                            new Day(date.getDayOfMonth(), date.getMonthValue(), date.getYear()),
+                                            totalBurnt);
+                                }
 
-
+                                logEntries.append("   - Total calories expended from exercises: " + round(totalBurnt, 1)
+                                        + "cal\n");
 
                                 logEntries.append("Result:\n   - ");
 
-                                if(totalCal<=totalBurnt){
+                                if (totalCal <= totalBurnt) {
                                     double difference = totalBurnt - totalCal;
                                     logEntries.append("You have lost ").append(round(difference, 1)).append("cal");
-                                }
-                                else {
+
+                                } else {
                                     double difference = totalCal - totalBurnt;
                                     logEntries.append("You have gained ").append(round(difference, 1)).append("cal");
                                 }
 
-
                                 logEntries.append("\n\n");
+
                             } else {
                                 logEntries.append(date.toString()).append(" - No log entry\n\n");
                             }
                         }
+                        XYPlot plot = (XYPlot) chart.getPlot();
+                        plot.setDataset(dataset);
 
                         // Display the log entries in the text area
                         JTextArea ta = getJTextAreaByJLabelText("Description:   ");
@@ -988,10 +1028,8 @@ public class SwingGUI {
                 JTextField prot1 = getJTextFieldByJLabelText("Protein(g):  ");
                 JTextField carbo1 = getJTextFieldByJLabelText("Carbohydrates:  ");
 
-
                 JTextField exerciseName = getJTextFieldByJLabelText("Excersice Name: ");
                 JTextField caloriesBurn = getJTextFieldByJLabelText("Calories Burn(ccal/min): ");
-
 
                 if (cb.getSelectedItem() == "Other") {
 
@@ -1023,7 +1061,7 @@ public class SwingGUI {
                     exerciseName.setEditable(true);
                     caloriesBurn.setEditable(true);
                 } else {
-                    
+
                     exerciseName.setEditable(false);
                     caloriesBurn.setEditable(false);
                 }
@@ -1032,12 +1070,16 @@ public class SwingGUI {
         };
     }
 
-
-    private static double round (double value, int precision) {
+    private static double round(double value, int precision) {
         int scale = (int) Math.pow(10, precision);
         return (double) Math.round(value * scale) / scale;
     }
 }
+
+
+
+
+
 
 class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
     private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy,MM,dd");
@@ -1053,8 +1095,6 @@ class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
             return dateFormatter.format(value);
         }
 
-
-        
         return "";
     }
 }
