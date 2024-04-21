@@ -30,7 +30,7 @@ class CSVWriter {
         }
     }
 
-    public List<List<String>> reading(int id) throws IOException {
+    public static List<List<String>> reading(int id) throws IOException {
         String fileName = getFileName(id);
         List<List<String>> records = new ArrayList<>();
 
@@ -44,7 +44,7 @@ class CSVWriter {
         return records;
     }
 
-    private String getFileName(int id) {
+    private static String getFileName(int id) {
         if (id == 1 || id == 0) {
             return "food.csv";
         } else if (id == 2) {
@@ -68,7 +68,7 @@ class CSVWriter {
         return false; // Food name does not exist in the file
     }
 
-    public Element getByName(int id, String name) throws IOException {
+    public static Element getByName(int id, String name) throws IOException {
         List<List<String>> list = reading(id);
 
         for (List<String> entry : list) {
@@ -81,7 +81,7 @@ class CSVWriter {
         return null;
     }
 
-    private Element parseEntry(int id, List<String> entry) {
+    private static Element parseEntry(int id, List<String> entry) {
         switch (id) {
             case 0:
                 return new Food(entry.get(1), Integer.parseInt(entry.get(2)), Integer.parseInt(entry.get(3)),
@@ -123,7 +123,7 @@ class CSVWriter {
         return foundEntries;
     }
 
-    public Element getLogByDate(int id, int year, int month, int day) throws IOException {
+    public static Element getLogByDate(int id, int year, int month, int day) throws IOException {
         List<List<String>> logList = reading(3); // Assuming logs are stored with id 3
         Element foundEntry = null;
 
