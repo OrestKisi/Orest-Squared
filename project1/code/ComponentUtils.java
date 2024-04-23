@@ -204,7 +204,7 @@ public class ComponentUtils {
 
                 JTextField[] exercises = {
 
-                getJTextFieldByJLabelText("Excersice Name: "),
+                getJTextFieldByJLabelText("Exercise Name: "),
                 getJTextFieldByJLabelText("Calories Burn(ccal/min): "),
 
                 };
@@ -221,7 +221,7 @@ public class ComponentUtils {
                     }
                 }
 
-                if (cb.getSelectedItem() == "Other  ") {
+                if (cb.getSelectedItem() == "Other ") {
 
                     for (JTextField field : exercises) {
                         field.setEditable(true);

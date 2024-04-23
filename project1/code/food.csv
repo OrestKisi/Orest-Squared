@@ -21,3 +21,6 @@ r,newestRecipe,adjdaod,1
 b,newestProduct,131,24,6423,24
 r,newestRecipe,newestProduct,1,newestProduct,1
 b,markSinistaj,13,46,54,24
+r,kebab,banan,1,banan,1,banan,1
+b,meat,1,2,3,4
+r,kebab2,meat,1,meat,1,meat,1,meat,1
