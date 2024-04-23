@@ -45,18 +45,10 @@ public class ComponentFactory {
 
         ButtonComponent component = null;
 
-        if (args.length == 6) {
-            System.out.println(args[5]);
-
             component = new ButtonComponent((String) args[0], (int) args[1], (int) args[2],
                     (int) args[3], (int) args[4], (ActionListener) args[5]);
 
-            
-        }
-        else {
-            component = new ButtonComponent((String) args[0], (int) args[1], (int) args[2],
-                    (int) args[3], (int) args[4], null);
-        }
+        
         return (JButton) component.getComponent();
     }
 
@@ -78,9 +70,10 @@ public class ComponentFactory {
 
     private JComboBox<String> createComboBox(Object[] args) {
 
-        ComboBoxComponent component = new ComboBoxComponent((int) args[0], (int) args[1], (int) args[2], (int) args[3], (String[]) args[4],
+        ComboBoxComponent component = new ComboBoxComponent((int) args[0], (int) args[1], (int) args[2], (int) args[3],
+                (String[]) args[4],
                 (int) args[5], (ItemListener) args[6]);
-                
+
         return (JComboBox<String>) component.getComponent();
     }
 

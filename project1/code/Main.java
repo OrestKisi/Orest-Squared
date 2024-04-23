@@ -17,7 +17,7 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             window = new JFrame("Project 1 - Food Application - Orest Brukhal, Orest Kisi");
             window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            window.setSize(600, 1000);
+            window.setSize(600, 700);
             window.setResizable(true);
 
             sg = new SwingGUI(window);

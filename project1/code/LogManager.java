@@ -90,8 +90,7 @@ public class LogManager {
 
         List<String> products = _products;
 
-        String selectedExercise = (String) sg.getJComboBoxByJLabelText("Exersice Performed: ")
-                .getSelectedItem();
+        String selectedExercise = (String) sg.getJComboBoxByJLabelText("Exercise Performed:").getSelectedItem();
 
         String[] str = sg.getDateByLabelText("Date:  ");
         double weight = Double.parseDouble(sg.getJTextFieldByJLabelText("Current weight:  ").getText());
@@ -113,7 +112,7 @@ public class LogManager {
 
         try {
 
-            if (selectedExercise.equals("Other  ")) {
+            if (selectedExercise.equals("Other ")) {
 
                 exerciseName = sg.getJTextFieldByJLabelText("Excersice Name: ").getText();
                 caloriesBurn = Double

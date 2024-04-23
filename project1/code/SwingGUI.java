@@ -26,7 +26,6 @@ public class SwingGUI {
 
     private void initializeGUI() {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setSize(800, 600);
         window.setLayout(new BorderLayout());
 
         tabPanel = new JTabbedPane();
@@ -79,8 +78,8 @@ public class SwingGUI {
         panel.add((JComponent) factory.createComponent(ComponentFactory.ComponentType.DATE_CHOOSER, 170, 60, 150, 20));
         panel.add((JButton) factory.createComponent(ComponentFactory.ComponentType.BUTTON, "Check", 300, 100, 100, 30, al));
         panel.add((JLabel) factory.createComponent(ComponentFactory.ComponentType.LABEL, "Description:   ", 50, 140, 120, 20));
-        panel.add((JScrollPane) factory.createComponent(ComponentFactory.ComponentType.TEXT_AREA, 170, 140, 400, 350));
-        panel.add((JComponent) factory.createComponent(ComponentFactory.ComponentType.XY_CHART, 0, 500, 590, 400));
+        panel.add((JScrollPane) factory.createComponent(ComponentFactory.ComponentType.TEXT_AREA, 170, 140, 400, 100));
+        panel.add((JComponent) factory.createComponent(ComponentFactory.ComponentType.XY_CHART, 0, 250, 590, 400));
     }
 
     private void addComponentsForFindLog(JPanel panel) {
@@ -114,12 +113,12 @@ public class SwingGUI {
         panel.add((JLabel) factory.createComponent(ComponentFactory.ComponentType.LABEL, "Carbohydrates:  ", 320, 220, 100, 20));
         panel.add((JComponent) factory.createComponent(ComponentFactory.ComponentType.TEXT_FIELD, 400, 220, 50, 20, false));
     
-        panel.add((JButton) factory.createComponent(ComponentFactory.ComponentType.BUTTON, "Add Product to Log", 170, 260, 200, 30), al);
+        panel.add((JButton) factory.createComponent(ComponentFactory.ComponentType.BUTTON, "Add Product to Log", 170, 260, 200, 30, al));
         
         panel.add((JLabel) factory.createComponent(ComponentFactory.ComponentType.LABEL, "Calorie Limit: ", 50, 320, 100, 20));
         panel.add((JComponent) factory.createComponent(ComponentFactory.ComponentType.TEXT_FIELD, 170, 320, 150, 20, true));
     
-        panel.add((JLabel) factory.createComponent(ComponentFactory.ComponentType.LABEL, "Exercise Performed: ", 50, 380, 120, 20));
+        panel.add((JLabel) factory.createComponent(ComponentFactory.ComponentType.LABEL, "Exercise Performed:", 50, 380, 120, 20));
         panel.add((JComponent) factory.createComponent(ComponentFactory.ComponentType.COMBO_BOX, 170, 380, 150, 20, csvWriter.getExerciseNames(), 1, il));
     
         panel.add((JLabel) factory.createComponent(ComponentFactory.ComponentType.LABEL, "Exercise Name: ", 50, 420, 100, 20));
@@ -131,7 +130,7 @@ public class SwingGUI {
         panel.add((JComponent) factory.createComponent(ComponentFactory.ComponentType.TEXT_FIELD, 170, 480, 150, 20, true));
     
         panel.add((JLabel) factory.createComponent(ComponentFactory.ComponentType.LABEL, "Current:  ", 50, 520, 120, 20));
-        panel.add((JScrollPane) factory.createComponent(ComponentFactory.ComponentType.TEXT_AREA, 170, 520, 100, 200));
+        panel.add((JScrollPane) factory.createComponent(ComponentFactory.ComponentType.TEXT_AREA, 170, 520, 350, 100));
     
         panel.add((JButton) factory.createComponent(ComponentFactory.ComponentType.BUTTON, "Add Log", 170, 620, 100, 30, al));
     }

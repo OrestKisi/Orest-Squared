@@ -10,7 +10,6 @@ class CSVWriter {
         File csvFile = determineFile(el);
 
         if ((el instanceof Food || el instanceof Exercise) && checkIfExists(csvFile, data[1])) {
-            System.out.print(el.getClass().toString().substring(6) + " name already exists. Skipping writing to file.");
             return;
         }
 
